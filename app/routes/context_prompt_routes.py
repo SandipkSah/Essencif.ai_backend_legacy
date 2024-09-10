@@ -39,3 +39,22 @@ def get_prompts():
     except Exception as e:
         print(f"Error occurred while retrieving prompts: {str(e)}")
         return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
+
+@context_prompt_blueprint.route('/api/parameters', methods=['GET'])
+def get_parameters():
+    """Retrieves prompt information from an Excel file."""
+
+    try:
+        # Read prompts from Excel
+        excel_file = 'Chat GPT.xlsx'
+        df_parameters = pd.read_excel(excel_file, sheet_name="Parameter")
+        df_parameters = df_parameters[df_parameters['Owner'] == 'Default']
+        
+        # Convert DataFrame to JSON
+        parameters_data = df_parameters.to_json(orient='records')
+
+        return jsonify({"parameters": parameters_data})
+
+    except Exception as e:
+        print(f"Error occurred while retrieving prompts: {str(e)}")
+        return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500

@@ -12,6 +12,7 @@ from app.routes.stock_details_routes import stock_details_blueprint
 from app.routes.financial_data_routes import financial_data_blueprint  # Import financial data routes
 from app.routes.GPT_analysis_routes import GPT_analysis_blueprint  # Import document analysis routes
 from app.routes.context_prompt_routes import context_prompt_blueprint  # Import context prompt routes
+from app.routes.prompts_upload_routes import prompt_upload_blueprint # Import Prompt upload routes
 
 # Register blueprints
 app.register_blueprint(base_blueprint)
@@ -20,6 +21,7 @@ app.register_blueprint(stock_details_blueprint)
 app.register_blueprint(financial_data_blueprint)  # Register financial data routes
 app.register_blueprint(GPT_analysis_blueprint)  # Register document analysis routes
 app.register_blueprint(context_prompt_blueprint)  # Register context prompt routes
+app.register_blueprint(prompt_upload_blueprint)  # Register prompt upload routes
 
 # Ensure CORS headers are applied to every response
 @app.after_request
