@@ -2,12 +2,13 @@ from flask import Blueprint, jsonify
 import requests
 from datetime import datetime, timedelta
 import yfinance as yf
+import os
 
 
 financial_data_blueprint = Blueprint('financial_data', __name__)
 
-ALPHA_VANTAGE_API_KEY = 'YY9KOSF33HJZTQ45'
-FINNHUB_API_KEY = 'cqf4lj1r01qm14qbiv80cqf4lj1r01qm14qbiv8g'
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
 
 @financial_data_blueprint.route('/api/current_price/<ticker>', methods=['GET'])
 def get_current_price(ticker):

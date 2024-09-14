@@ -10,8 +10,8 @@ This Flask application serves as the backend for a stock information web applica
 ### Installation
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/khadkauj/FinanceBackendFlask.git
-   cd FinanceBackendFlask
+   git clone https://christianschwehm@dev.azure.com/christianschwehm/Essencif.AI_backend/_git/Essencif.AI_backend
+   cd Essencif.AI_backend
    ```
 
 2. **Create a virtual environment:**

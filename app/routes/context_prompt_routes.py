@@ -1,15 +1,24 @@
 from flask import Blueprint, jsonify
 import pandas as pd
+import os
 
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
+# Read prompts from Excel
+current_env = os.getenv('CURRENT_FLASK_ENV')
+print("jsut pringtint envrinometn vaitabl=============================e", current_env)
+if (current_env == 'development'):
+    excel_file = 'Chat GPT.xlsx'
+else:
+    # for now it is this way, but it needs to be changed
+    #  depending on the location excel database file
+    excel_file = '/home/data/Chat GPT.xlsx'
+
+
 
 @context_prompt_blueprint.route('/api/contexts', methods=['GET'])
 def get_contexts():
     """Retrieves context information from an Excel file."""
-
     try:
-        # Read contexts from Excel
-        excel_file = 'Chat GPT.xlsx'
         df_context = pd.read_excel(excel_file, sheet_name="Context")
 
         # Convert DataFrame to JSON
@@ -24,10 +33,7 @@ def get_contexts():
 @context_prompt_blueprint.route('/api/prompts', methods=['GET'])
 def get_prompts():
     """Retrieves prompt information from an Excel file."""
-
     try:
-        # Read prompts from Excel
-        excel_file = 'Chat GPT.xlsx'
         df_prompt = pd.read_excel(excel_file, sheet_name="Prompts")
         df_prompt = df_prompt[df_prompt['Owner'] == 'Default']
         
@@ -43,10 +49,7 @@ def get_prompts():
 @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
 def get_parameters():
     """Retrieves prompt information from an Excel file."""
-
     try:
-        # Read prompts from Excel
-        excel_file = 'Chat GPT.xlsx'
         df_parameters = pd.read_excel(excel_file, sheet_name="Parameter")
         df_parameters = df_parameters[df_parameters['Owner'] == 'Default']
         

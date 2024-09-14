@@ -6,8 +6,9 @@ import os
 
 stock_details_blueprint = Blueprint('stock_details', __name__)
 
-ALPHA_VANTAGE_API_KEY = 'YY9KOSF33HJZTQ45'
-FINNHUB_API_KEY = 'cqf4lj1r01qm14qbiv80cqf4lj1r01qm14qbiv8g'
+
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
 
 @stock_details_blueprint.route('/api/get_ticker/<isin>', methods=['GET'])
 def get_ticker(isin):
