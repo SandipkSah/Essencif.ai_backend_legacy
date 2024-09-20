@@ -233,7 +233,7 @@ def document_analysis():
 
         # Decode the base64 file back to binary
         try:
-            file_data = base64.b64decode(base64_file.split(",")[1])  # Assuming data URL format
+            file_data = base64.b64decode(base64_file)  # Assuming data URL format
         except (TypeError, ValueError, IndexError) as e:
             return jsonify({"error": "Invalid base64 file data"}), 400
 

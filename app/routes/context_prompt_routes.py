@@ -5,7 +5,6 @@ import os
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
 # Read prompts from Excel
 current_env = os.getenv('CURRENT_FLASK_ENV')
-print("jsut pringtint envrinometn vaitabl=============================e", current_env)
 if (current_env == 'development'):
     excel_file = 'Chat GPT.xlsx'
 else:
