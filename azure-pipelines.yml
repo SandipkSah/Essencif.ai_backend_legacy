@@ -8,7 +8,7 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnectionId: '7c965538-104c-4c6b-841c-43fb97cb2361'
+  azureServiceConnection: 'essencif.ai_resources'
 
   # Web app name
   webAppName: 'essencifai-backend'
@@ -80,7 +80,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : essencifai-backend'
             inputs:
-              azureSubscription: $(azureServiceConnectionId)
+              azureSubscription: $(azureServiceConnection)
               appName: $(webAppName)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               
