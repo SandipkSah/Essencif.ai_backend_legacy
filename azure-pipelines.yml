@@ -74,14 +74,6 @@ stages:
       runOnce:
         deploy:
           steps:
-          
-          - script: |
-              echo "print to see the branch name"
-              echo "+++++++++++++++++++++++++++++"
-              echo "$(Build.SourceBranch)"
-              echo $(Build.SourceBranch)
-              echo "+++++++++++++++++++++++++++++"
-            displayName: "check the branch name"
 
           - task: UsePythonVersion@0
             inputs:
@@ -112,16 +104,6 @@ stages:
             inputs:
               versionSpec: '$(pythonVersion)'
             displayName: 'Use Python version'
-
-
-          - script: |
-              echo "print to see the branch name"
-              echo "+++++++++++++++++++++++++++++"
-              echo "$(Build.SourceBranch)"
-              echo $(Build.SourceBranch)
-              echo "+++++++++++++++++++++++++++++"
-            displayName: "check the branch name"
-
 
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : essencifai-backend-production'
