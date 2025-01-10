@@ -11,7 +11,7 @@ variables:
   azureServiceConnection: 'essencif.ai_resources'
 
   # Web app name
-  webAppProduction: 'essencifai-backend-production'
+  webAppProduction: 'essecifai-backend-production'
   webAppDevelopment: 'essencifai-backend-development'
 
   # Agent VM image name
@@ -59,31 +59,31 @@ stages:
       displayName: 'Upload package'
       artifact: drop
 
-# - stage: DeployDevelopment
-#   displayName: 'Deploy Web App'
-#   dependsOn: Build
-#   condition: succeeded()
-#   jobs:
-#   - deployment: DeploymentJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     environment: $(environmentName)
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
+- stage: DeployDevelopment
+  displayName: 'Deploy Web App'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: $(environmentName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
 
-#           - task: UsePythonVersion@0
-#             inputs:
-#               versionSpec: '$(pythonVersion)'
-#             displayName: 'Use Python version'
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python version'
 
-#           - task: AzureWebApp@1
-#             displayName: 'Deploy Azure Web App : essencifai-backend-development'
-#             inputs:
-#               azureSubscription: $(azureServiceConnection)
-#               appName: $(webAppDevelopment)
-#               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+          - task: AzureWebApp@1
+            displayName: 'Deploy Azure Web App : essencifai-backend-development'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              appName: $(webAppDevelopment)
+              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               
 - stage: DeployProduction
   displayName: 'Deploy Web App'
