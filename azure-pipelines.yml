@@ -98,7 +98,7 @@ stages:
 - stage: DeployProduction
   displayName: 'Deploy Web App'
   dependsOn: Build
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: DeploymentJob
     pool:
@@ -108,11 +108,20 @@ stages:
       runOnce:
         deploy:
           steps:
-
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '$(pythonVersion)'
             displayName: 'Use Python version'
+
+
+          - script: |
+              echo "print to see the branch name"
+              echo "+++++++++++++++++++++++++++++"
+              echo "$(Build.SourceBranch)"
+              echo $(Build.SourceBranch)
+              echo "+++++++++++++++++++++++++++++"
+            displayName: "check the branch name"
+
 
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : essencifai-backend-production'
