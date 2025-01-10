@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from quart import Blueprint, jsonify, request
 import requests
 from datetime import datetime, timedelta
 import openai

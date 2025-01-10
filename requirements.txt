@@ -7,8 +7,6 @@ charset-normalizer==3.3.2
 click==8.1.7
 distro==1.9.0
 exceptiongroup==1.2.2
-Flask==3.0.3
-Flask-Cors==4.0.1
 frozendict==2.4.4
 gunicorn==22.0.0
 h11==0.14.0
@@ -21,8 +19,7 @@ Jinja2==3.1.4
 lxml==5.2.2
 MarkupSafe==2.1.5
 multitasking==0.0.11
-numpy==2.0.1
-openai==1.37.0
+openai==1.54.0
 packaging==24.1
 pandas==2.2.2
 peewee==3.17.6
@@ -48,3 +45,14 @@ yfinance==0.2.41
 PyPDF2==3.0.1
 openpyxl==3.1.5
 pycryptodome==3.20.0
+qdrant_client==1.12.1
+sentence_transformers==3.2.1
+langchain==0.3.7
+langchain_huggingface==0.1.2
+langchain_openai==0.2.8
+langchain-community==0.3.7
+tortoise-orm==0.22.0
+tortoise-orm[asyncodbc]==0.22.0
+uvicorn==0.30.5
+quart==0.19.9
+quart-cors==0.7.0
