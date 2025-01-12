@@ -14,8 +14,8 @@ variables:
 
   # Web app name
   webAppProduction: 'essecifai-backend-production'
-  webAppDevelopment: 'essencifai-backend-development'
-  webAppTesting: 'essencifai-backend-testing'
+  webAppDevelopment: 'essecifai-backend-development'
+  webAppTesting: 'essecifai-backend-testing'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
