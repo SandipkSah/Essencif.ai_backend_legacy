@@ -14,8 +14,8 @@ variables:
 
   # Web app name
   webAppProduction: 'essecifai-backend-production'
-  webAppDevelopment: 'essecifai-backend-development'
-  webAppTesting: 'essecifai-backend-testing'
+  webAppDevelopment: 'essencifai-backend-development'
+  webAppTesting: 'essencifai-backend-testing'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -46,6 +46,7 @@ stages:
         python -m venv antenv
         source ./antenv/bin/activate
         pip install -r requirements.txt
+        echo 'la la lala lalal alalalallala==========='
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
 
@@ -63,14 +64,14 @@ stages:
       artifact: drop
 
 - stage: DeployDevelopment
-  displayName: 'Deploy Web App'
+  displayName: 'Deploy Web App Development'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   jobs:
-  - deployment: DeploymentJob
+  - deployment: DevelopmentDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(environmentName)
+    environment: 'development'
     strategy:
       runOnce:
         deploy:
@@ -90,14 +91,14 @@ stages:
 
 
 - stage: DeployTesting
-  displayName: 'Deploy Web App'
+  displayName: 'Deploy Web App Testing'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   jobs:
-  - deployment: DeploymentJob
+  - deployment: TestingDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(environmentName)
+    environment: 'testing'
     strategy:
       runOnce:
         deploy:
@@ -117,14 +118,14 @@ stages:
      
 
 - stage: DeployProduction
-  displayName: 'Deploy Web App'
+  displayName: 'Deploy Web App Production'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
-  - deployment: DeploymentJob
+  - deployment: ProductionDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(environmentName)
+    environment: 'production'
     strategy:
       runOnce:
         deploy:
