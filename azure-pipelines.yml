@@ -4,140 +4,141 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- master
-- stage
-
-
-variables:
-  # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnection: 'essencif.ai_resources'
-
-  # Web app name
-  webAppProduction: 'essecifai-backend-production'
-  webAppDevelopment: 'essencifai-backend-development'
-  webAppTesting: 'essencifai-backend-testing'
-
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-  # Environment name
-  environmentName: 'essencifai-backend'
-
-  # Project root folder. Point to the folder containing manage.py file.
-  projectRoot: $(System.DefaultWorkingDirectory)
-
-  # Python version: 3.12
-  pythonVersion: '3.12'
-
-stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: BuildJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
-
-    - script: |
-        python -m venv antenv
-        source ./antenv/bin/activate
-        pip install -r requirements.txt
-      workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
-
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
-      inputs:
-        rootFolderOrFile: '$(projectRoot)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
-
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Upload package'
-      artifact: drop
-
-- stage: DeployDevelopment
-  displayName: 'Deploy Web App'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
-  jobs:
-  - deployment: DeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: $(environmentName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development'
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              appName: $(webAppDevelopment)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-
-
-- stage: DeployTesting
-  displayName: 'Deploy Web App'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
-  jobs:
-  - deployment: DeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: $(environmentName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development'
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              appName: $(webAppTesting)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-     
-
-- stage: DeployProduction
-  displayName: 'Deploy Web App'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
-  - deployment: DeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: $(environmentName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-production'
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              appName: $(webAppProduction)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-              
+  - master
+  - stage
+  
+  
+  variables:
+    # Azure Resource Manager connection created during pipeline creation
+    azureServiceConnection: 'essencif.ai_resources'
+  
+    # Web app name
+    webAppProduction: 'essecifai-backend-production'
+    webAppDevelopment: 'essecifai-backend-development'
+    webAppTesting: 'essecifai-backend-testing'
+  
+    # Agent VM image name
+    vmImageName: 'ubuntu-latest'
+  
+    # Environment name
+    environmentName: 'essencifai-backend'
+  
+    # Project root folder. Point to the folder containing manage.py file.
+    projectRoot: $(System.DefaultWorkingDirectory)
+  
+    # Python version: 3.12
+    pythonVersion: '3.12'
+  
+  stages:
+  - stage: Build
+    displayName: Build stage
+    jobs:
+    - job: BuildJob
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(pythonVersion)'
+        displayName: 'Use Python $(pythonVersion)'
+  
+      - script: |
+          python -m venv antenv
+          source ./antenv/bin/activate
+          pip install -r requirements.txt
+        workingDirectory: $(projectRoot)
+        displayName: "Install requirements"
+  
+      - task: ArchiveFiles@2
+        displayName: 'Archive files'
+        inputs:
+          rootFolderOrFile: '$(projectRoot)'
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+          replaceExistingArchive: true
+  
+      - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        displayName: 'Upload package'
+        artifact: drop
+  
+  - stage: DeployDevelopment
+    displayName: 'Development Deployment'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+    jobs:
+    - deployment: DevelopmentDeploymentJob
+      pool:
+        vmImage: $(vmImageName)
+      environment: development
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+  
+            - task: UsePythonVersion@0
+              inputs:
+                versionSpec: '$(pythonVersion)'
+              displayName: 'Use Python version'
+  
+            - task: AzureWebApp@1
+              displayName: 'Deploy Azure Web App : essencifai-backend-development'
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                appName: $(webAppDevelopment)
+                package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+  
+  
+  - stage: DeployTesting
+    displayName: 'Testing Deployment'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+    jobs:
+    - deployment: TestingDeploymentJob
+      pool:
+        vmImage: $(vmImageName)
+      environment: testing
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+  
+            - task: UsePythonVersion@0
+              inputs:
+                versionSpec: '$(pythonVersion)'
+              displayName: 'Use Python version'
+  
+            - task: AzureWebApp@1
+              displayName: 'Deploy Azure Web App : essencifai-backend-development'
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                appName: $(webAppTesting)
+                package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+       
+  
+  - stage: DeployProduction
+    displayName: 'Production Deployment'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    jobs:
+    - deployment: ProductionDeploymentJob
+      pool:
+        vmImage: $(vmImageName)
+      environment: production
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: UsePythonVersion@0
+              inputs:
+                versionSpec: '$(pythonVersion)'
+              displayName: 'Use Python version'
+  
+            - task: AzureWebApp@1
+              displayName: 'Deploy Azure Web App : essencifai-backend-production'
+              inputs:
+                azureSubscription: $(azureServiceConnection)
+                appName: $(webAppProduction)
+                package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+                
+  
