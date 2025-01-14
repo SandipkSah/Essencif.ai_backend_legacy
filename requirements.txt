@@ -56,3 +56,4 @@ tortoise-orm[asyncodbc]==0.22.0
 uvicorn==0.30.5
 quart==0.19.9
 quart-cors==0.7.0
+hyperframe==6.0.1
