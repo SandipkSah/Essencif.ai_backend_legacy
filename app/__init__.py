@@ -5,6 +5,7 @@ from tortoise import Tortoise
 from app.ormModels.applicationAdmins import ensure_default_admins
 import config
 from quart import current_app
+import os
 
 app = Quart(__name__)
 app.config.from_object(config)
@@ -67,4 +68,6 @@ async def after_request(response):
     return response
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    port = int(os.getenv("PORT", 8000))  # Default to 8000 if PORT is not set
+    app.run(host="0.0.0.0", port=port)
