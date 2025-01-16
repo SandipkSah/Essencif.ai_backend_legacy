@@ -47,7 +47,6 @@ stages:
     - script: |
         python -m venv antenv
         source ./antenv/bin/activate
-        pip install -r requirements.txt
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
 
