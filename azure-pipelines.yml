@@ -147,31 +147,31 @@ stages:
 #               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
 
 
-- stage: DeployTesting2
-  displayName: 'Deploy Web App Testing'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
-  jobs:
-  - deployment: TestingDeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'testing2'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+# - stage: DeployTesting2
+#   displayName: 'Deploy Web App Testing'
+#   dependsOn: Build
+#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+#   jobs:
+#   - deployment: TestingDeploymentJob
+#     pool:
+#       vmImage: $(vmImageName)
+#     environment: 'testing2'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
 
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
+#           - task: UsePythonVersion@0
+#             inputs:
+#               versionSpec: '$(pythonVersion)'
+#             displayName: 'Use Python version'
 
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development'
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              appName: $(webAppTesting2)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+#           - task: AzureWebApp@1
+#             displayName: 'Deploy Azure Web App : essencifai-backend-development'
+#             inputs:
+#               azureSubscription: $(azureServiceConnection)
+#               appName: $(webAppTesting2)
+#               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
   
 
 - stage: DeployProduction
