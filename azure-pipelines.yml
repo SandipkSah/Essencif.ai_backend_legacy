@@ -68,7 +68,7 @@ stages:
   - deployment: DevelopmentDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(AZURE_COMPILATION_ENV)
+    environment: 'development'
     strategy:
       runOnce:
         deploy:
@@ -99,7 +99,7 @@ stages:
   - deployment: TestingDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(AZURE_COMPILATION_ENV)
+    environment: 'testing'
     strategy:
       runOnce:
         deploy:
@@ -130,7 +130,7 @@ stages:
   - deployment: ProductionDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(AZURE_COMPILATION_ENV)
+    environment: 'production'
     strategy:
       runOnce:
         deploy:
