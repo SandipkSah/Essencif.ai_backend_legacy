@@ -46,7 +46,8 @@ stages:
 
     - script: |
         python -m venv antenv
-        source ./antenv/bin/activate
+        pip install -r requirements.txt
+        # source ./antenv/bin/activate
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
 
@@ -64,7 +65,7 @@ stages:
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: drop
-      
+
 
 # - stage: DeployDevelopment
 #   displayName: 'Deploy Web App Development'
