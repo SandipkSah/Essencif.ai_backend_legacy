@@ -124,13 +124,13 @@ stages:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     DEPLOYMENT_ENV: 'essecifai-backend-production'
-    AZURE_COMPILATION_ENV: $(AZURE_COMPILATION_ENV)
+    AZURE_COMPILATION_ENV: 'production'
     
   jobs:
   - deployment: ProductionDeploymentJob
     pool:
       vmImage: $(vmImageName)
-    environment: 'production'
+    environment: $(AZURE_COMPILATION_ENV)
     strategy:
       runOnce:
         deploy:
