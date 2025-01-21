@@ -212,9 +212,9 @@ def summarize_text_internet(parameter, context):
 
 
 @GPT_analysis_blueprint.route('/api/document_analysis', methods=['POST'])
-def document_analysis():
+async def document_analysis():
     # Assuming JSON data is sent for Prompt, Context, and the base64-encoded file
-    data = request.get_json()
+    data = await request.get_json()
 
     if not data:
         return jsonify({"error": "Invalid JSON data"}), 400
