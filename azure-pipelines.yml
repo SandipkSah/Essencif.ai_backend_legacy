@@ -61,7 +61,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
-    DEPLOYMENT_ENV: 'essecifai-backend-development'
+    DEPLOYMENT_ENV: 'essencifai-backend-development'
     AZURE_COMPILATION_ENV: 'development'
 
   jobs:
@@ -92,7 +92,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
-    DEPLOYMENT_ENV: 'essecifai-backend-testing'
+    DEPLOYMENT_ENV: 'essencifai-backend-testing'
     AZURE_COMPILATION_ENV: 'testing'
 
   jobs:
