@@ -61,7 +61,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
-    DEPLOYMENT_ENV: 'essencifai-backend-development'
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-development'
     AZURE_COMPILATION_ENV: 'development'
 
   jobs:
@@ -83,7 +83,7 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-development'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(DEPLOYMENT_ENV)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
 
 
@@ -92,7 +92,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
-    DEPLOYMENT_ENV: 'essencifai-backend-testing'
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-testing'
     AZURE_COMPILATION_ENV: 'testing'
 
   jobs:
@@ -114,7 +114,7 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-development'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(DEPLOYMENT_ENV)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
       
 
@@ -123,7 +123,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
-    DEPLOYMENT_ENV: 'essecifai-backend-production'
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essecifai-backend-production'
     AZURE_COMPILATION_ENV: 'production'
     
   jobs:
@@ -144,6 +144,6 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-production'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(DEPLOYMENT_ENV)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               
