@@ -16,19 +16,19 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: UseDocker@0
+    - task: Docker@2
       inputs:
         command: 'build'
-        containerRegistry: $(containerRegistry)
-        dockerfile: $(Build.SourcesDirectory)/Dockerfile
-        tags: $(Build.BuildId)
+        containerRegistry: '$(containerRegistry)'
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: '$(Build.BuildId)'
 
-    - task: UseDocker@0
+    - task: Docker@2
       inputs:
         command: 'push'
-        containerRegistry: $(containerRegistry)
-        imageName: $(dockerImageName)
-        tags: $(Build.BuildId)
+        containerRegistry: '$(containerRegistry)'
+        imageName: '$(dockerImageName)'
+        tags: '$(Build.BuildId)'
 
 - stage: DeployDevelopment
   displayName: 'Deploy Web App Development'
@@ -98,4 +98,3 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
-
