@@ -21,6 +21,7 @@ stages:
         command: 'build'
         containerRegistry: '$(containerRegistry)'
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        imageName: '$(containerRegistry)/$(dockerImageName)'
         tags: '$(Build.BuildId)'
 
     - task: Docker@2
