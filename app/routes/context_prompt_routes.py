@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify
+from quart import Blueprint, jsonify
 import pandas as pd
 import os
 
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
 # Read prompts from Excel
-current_env = os.getenv('CURRENT_FLASK_ENV')
+current_env = os.getenv('CURRENT_QUART_ENV', "development")
 if (current_env == 'development'):
     excel_file = 'Chat GPT.xlsx'
 else:

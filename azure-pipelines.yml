@@ -12,16 +12,8 @@ variables:
   # Azure Resource Manager connection created during pipeline creation
   azureServiceConnection: 'essencif.ai_resources'
 
-  # Web app name
-  webAppProduction: 'essecifai-backend-production'
-  webAppDevelopment: 'essencifai-backend-development'
-  webAppTesting: 'essencifai-backend-testing'
-
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
-  # Environment name
-  environmentName: 'essencifai-backend'
 
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
@@ -45,7 +37,6 @@ stages:
     - script: |
         python -m venv antenv
         source ./antenv/bin/activate
-        pip install -r requirements.txt
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
 
@@ -57,15 +48,22 @@ stages:
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
+        excludePatterns: |
+          **/.git/**
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: drop
 
+
 - stage: DeployDevelopment
   displayName: 'Deploy Web App Development'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-development'
+    AZURE_COMPILATION_ENV: 'development'
+
   jobs:
   - deployment: DevelopmentDeploymentJob
     pool:
@@ -85,7 +83,7 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-development'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(webAppDevelopment)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
 
 
@@ -93,6 +91,10 @@ stages:
   displayName: 'Deploy Web App Testing'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-testing'
+    AZURE_COMPILATION_ENV: 'testing'
+
   jobs:
   - deployment: TestingDeploymentJob
     pool:
@@ -112,14 +114,18 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-development'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(webAppTesting)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-     
+      
 
 - stage: DeployProduction
   displayName: 'Deploy Web App Production'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essecifai-backend-production'
+    AZURE_COMPILATION_ENV: 'production'
+    
   jobs:
   - deployment: ProductionDeploymentJob
     pool:
@@ -138,6 +144,6 @@ stages:
             displayName: 'Deploy Azure Web App : essencifai-backend-production'
             inputs:
               azureSubscription: $(azureServiceConnection)
-              appName: $(webAppProduction)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               

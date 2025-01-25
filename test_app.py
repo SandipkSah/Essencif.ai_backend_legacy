@@ -1,8 +1,8 @@
 import unittest
-from flask import json
+from quart import json
 from app import app
 
-class FlaskTestCase(unittest.TestCase):
+class QuartTestCase(unittest.TestCase):
 
     def setUp(self):
         # Sets up the test client before each test
