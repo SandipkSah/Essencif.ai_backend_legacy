@@ -28,7 +28,7 @@ stages:
       inputs:
         command: 'push'
         containerRegistry: '$(containerRegistry)'
-        imageName: '$(dockerImageName)'
+        iimageName: '$(containerRegistry)/$(dockerImageName):$(Build.BuildId)' 
         tags: '$(Build.BuildId)'
 
 - stage: DeployDevelopment
