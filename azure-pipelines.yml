@@ -53,6 +53,31 @@ stages:
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
 
+
+- stage: DeployDevelopmentContainer
+  displayName: 'Deploy Web App Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-development-container'
+    AZURE_COMPILATION_ENV: 'developmentContainer'
+
+  jobs:
+  - deployment: DevelopmentDeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
+
+
 - stage: DeployTesting
   displayName: 'Deploy Web App Testing'
   dependsOn: Build
