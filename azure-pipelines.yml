@@ -98,3 +98,4 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
+
