@@ -1,60 +1,34 @@
-# Python to Linux Web App on Azure
-# Build your Python project and deploy it to Azure as a Linux Web App.
-# Change python version to one thats appropriate for your application.
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
 - master
 - stage
 
-
 variables:
-  # Azure Resource Manager connection created during pipeline creation
   azureServiceConnection: 'essencif.ai_resources'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
-  # Project root folder. Point to the folder containing manage.py file.
-  projectRoot: $(System.DefaultWorkingDirectory)
-
-  # Python version: 3.12
-  pythonVersion: '3.12'
+  dockerImageName: 'essencifai-backend'  # You can name it according to your project
+  containerRegistry: 'essencifaibackendregistry.azurecr.io'  # Azure Container Registry URL
 
 stages:
 - stage: Build
-  displayName: Build stage
+  displayName: Build and Dockerize
   jobs:
-  - job: BuildJob
+  - job: BuildDockerImage
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: UsePythonVersion@0
+    - task: UseDocker@0
       inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
+        command: 'build'
+        containerRegistry: $(containerRegistry)
+        dockerfile: $(Build.SourcesDirectory)/Dockerfile
+        tags: $(Build.BuildId)
 
-    - script: |
-        python -m venv antenv
-        source ./antenv/bin/activate
-      workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
-
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
+    - task: UseDocker@0
       inputs:
-        rootFolderOrFile: '$(projectRoot)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
-        excludePatterns: |
-          **/.git/**
-
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Upload package'
-      artifact: drop
-
+        command: 'push'
+        containerRegistry: $(containerRegistry)
+        imageName: $(dockerImageName)
+        tags: $(Build.BuildId)
 
 - stage: DeployDevelopment
   displayName: 'Deploy Web App Development'
@@ -73,19 +47,11 @@ stages:
       runOnce:
         deploy:
           steps:
-
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development'
+          - task: AzureWebAppContainer@1
             inputs:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-
+              imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
 
 - stage: DeployTesting
   displayName: 'Deploy Web App Testing'
@@ -104,28 +70,20 @@ stages:
       runOnce:
         deploy:
           steps:
-
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development'
+          - task: AzureWebAppContainer@1
             inputs:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-      
+              imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
 
 - stage: DeployProduction
   displayName: 'Deploy Web App Production'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
-    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essecifai-backend-production'
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-production'
     AZURE_COMPILATION_ENV: 'production'
-    
+
   jobs:
   - deployment: ProductionDeploymentJob
     pool:
@@ -135,15 +93,8 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-production'
+          - task: AzureWebAppContainer@1
             inputs:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-              
+              imageName: $(containerRegistry)/$(dockerImageName):$(Build.BuildId)
