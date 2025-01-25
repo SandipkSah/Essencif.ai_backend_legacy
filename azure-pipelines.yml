@@ -6,7 +6,7 @@ variables:
   azureServiceConnection: 'essencif.ai_resources'
   vmImageName: 'ubuntu-latest'
   dockerImageName: 'essencifai-backend'  # You can name it according to your project
-  containerRegistry: 'essencifaibackendregistry.azurecr.io'  # Azure Container Registry URL
+  containerRegistry: 'container-registry'  # Azure Container Registry URL
 
 stages:
 - stage: Build
