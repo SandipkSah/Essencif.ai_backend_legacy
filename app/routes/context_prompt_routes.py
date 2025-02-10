@@ -8,13 +8,13 @@ import os
 
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
 # Read prompts from Excel
-current_env = os.getenv('CURRENT_QUART_ENV', "development")
-if (current_env == 'development'):
-    excel_file = 'Chat GPT.xlsx'
-else:
-    # for now it is this way, but it needs to be changed
-    #  depending on the location excel database file
-    excel_file = '/home/data/Chat GPT.xlsx'
+# current_env = os.getenv('CURRENT_QUART_ENV', "development")
+# if (current_env == 'development'):
+#     excel_file = 'Chat GPT.xlsx'
+# else:
+#     # for now it is this way, but it needs to be changed
+#     #  depending on the location excel database file
+#     excel_file = '/home/data/Chat GPT.xlsx'
 
 
 
