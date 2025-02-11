@@ -13,6 +13,6 @@ DEFAULT_ADMINS = [
     "78c4c12b-afb8-43eb-8111-364a4eaff302",
 ]
 
-DB_URL="sqlite://essencifai"
-##DB_URL=mssql+pyodbc://sa:Test0123%2BTest01@localhost:1433/essencifai?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes
-
+# DB_URL="sqlite://essencifai.db"
+DB_URL = "sqlite://essencifai"
+# DB_URL="mssql://nordakademie_admin:Pass@12345@nordakademie-sql-database.database.windows.net:1433/nordakademie_sql_database?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no"

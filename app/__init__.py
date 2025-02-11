@@ -19,7 +19,7 @@ load_dotenv(override=True)
 async def init_tortoise():
     await Tortoise.init(
         db_url=current_app.config.get("DB_URL", "sqlite://essencifai"),
-        modules={"models": ["app.ormModels.rating", "app.ormModels.points", "app.ormModels.userQuestionHistorie", "app.ormModels.applicationAdmins"]},
+        modules={"models": ["app.ormModels.rating", "app.ormModels.points", "app.ormModels.userQuestionHistorie", "app.ormModels.applicationAdmins","app.ormModels.context","app.ormModels.prompt", "app.ormModels.parameter"]},
     )
     await Tortoise.generate_schemas()
     

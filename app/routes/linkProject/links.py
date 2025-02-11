@@ -8,7 +8,7 @@ link_blueprint = Blueprint('link', __name__)
 
 COLLECTION_METADATA_NAME = os.getenv("COLLECTION_METADATA", "metadata_collection")
 COLLECTION_CHUNK_NAME = os.getenv("COLLECTION_CHUNK", "chunk_collection")
-WORKER_URL = os.getenv("WORKER_URL", "localhost:8000")
+WORKER_URL = os.getenv("WORKER_URL", "http://localhost:8000")
 
 @link_blueprint.route('/api/links/personal', methods=['GET'])
 async def get_links():
@@ -63,7 +63,7 @@ async def add_link():
     try:
         # Call the scraping API using httpx
         async with httpx.AsyncClient() as client:
-            response = await client.post("http://" + WORKER_URL + "/scrape", json=json_payload)
+            response = await client.post(WORKER_URL + "/scrape", json=json_payload)
             print(response.status_code)
             if response.status_code == 200:
                 await grant_points(user_id, 100)
