@@ -67,7 +67,7 @@ async def get_parameters():
     """Retrieves parameter information from the database."""
     try:
         parameters = await Parameter.filter(owner='Default')
-        parameter_data = [{"id": parameter.id, "owner": parameter.owner, "parameterset": parameter.parameterset, "engine": parameter.engine, "max_tokens": parameter.max_tokens, "temperature": parameter.temperature, "top_p": parameter.top_p, "n": parameter.n, "stream": parameter.stream, "presence_penalty": parameter.presence_penalty, "frequency_penalty": parameter.frequency_penalty, "user": parameter.user} for parameter in parameters]
+        parameter_data = [{"id": parameter.id, "owner": parameter.owner, "parameterset": parameter.parameterset, "engine": parameter.engine, "max_tokens": parameter.max_tokens, "temperature": parameter.temperature, "top_p": parameter.top_p, "n": parameter.n, "stream": parameter.stream, "presence_penalty": parameter.presence_penalty, "frequency_penalty": parameter.frequency_penalty, "user": parameter.username} for parameter in parameters]
 
         return jsonify({"parameters": parameter_data})
 
