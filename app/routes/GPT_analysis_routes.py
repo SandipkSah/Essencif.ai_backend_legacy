@@ -131,16 +131,15 @@ def summarize_text_document(text, parameter, context):
 
     client = openai.OpenAI(api_key=OPENAI_KEY)
     response = client.chat.completions.create(
-        model=parameter['Engine'],
+        model=parameter.get('engine'),
         messages=messages,
-        # max_tokens=parameter['Max_tokens'],
-        temperature=parameter['temperature'],
-        top_p=parameter['top_p'],
-        n=parameter['n'],
-        stream=parameter['stream'],
-        presence_penalty=parameter['presence_penalty'],
-        frequency_penalty=parameter['frequency_penalty'],
-        user=parameter['user']
+        temperature=parameter.get('temperature'),
+        top_p=parameter.get('top_p'),
+        n=parameter.get('n'),
+        stream=parameter.get('stream', False),
+        presence_penalty=parameter.get('presence_penalty'),
+        frequency_penalty=parameter.get('frequency_penalty'),
+        user=parameter.get('user')
     )
     return response.choices[0].message.content.strip()
 
