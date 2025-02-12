@@ -19,9 +19,25 @@ load_dotenv(override=True)
 async def init_tortoise():
     await Tortoise.init(
         db_url=current_app.config.get("DB_URL", "sqlite://essencifai"),
-        modules={"models": ["app.ormModels.rating", "app.ormModels.points", "app.ormModels.userQuestionHistorie", "app.ormModels.applicationAdmins","app.ormModels.context","app.ormModels.prompt", "app.ormModels.parameter"]},
+        modules={
+            "models": [
+                "app.ormModels.applicationAdmins",
+                "app.ormModels.context",
+                "app.ormModels.document",
+                "app.ormModels.implementation",
+                "app.ormModels.parameter",
+                "app.ormModels.points",
+                "app.ormModels.prompt", 
+                "app.ormModels.rating", 
+                "app.ormModels.result",
+                "app.ormModels.user_group",
+                "app.ormModels.user_right",
+                "app.ormModels.user",
+                "app.ormModels.user_question_history", 
+                ]
+            },
     )
-    # await Tortoise.generate_schemas(safe=True)
+    await Tortoise.generate_schemas(safe=True)
     
     # Ensure default admin entries exist
     await ensure_default_admins()

@@ -1,10 +1,11 @@
 from tortoise import fields, models
+from .user_group import UserGroup
 
 class Prompt(models.Model):
-    id = fields.IntField(pk=True)
-    owner = fields.CharField(max_length=255)
-    promptname = fields.CharField(max_length=255)
+    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="prompts")
+    prompt_name = fields.CharField(max_length=255, pk=True)
     prompt = fields.TextField()
 
     class Meta:
-        table = "prompts"
+        table = "prompt"
+

@@ -1,18 +1,19 @@
 from tortoise import fields, models
+from .user_group import UserGroup
 
 class Parameter(models.Model):
-    id = fields.IntField(pk=True)
-    owner = fields.CharField(max_length=255)
-    parameterset = fields.TextField()
-    engine = fields.CharField(max_length=255, null=True)
-    max_tokens = fields.IntField(null=True)
-    temperature = fields.FloatField(null=True)
-    top_p = fields.FloatField(null=True)
-    n = fields.IntField(null=True)
-    stream = fields.BooleanField(null=True)
-    presence_penalty = fields.FloatField(null=True)
-    frequency_penalty = fields.FloatField(null=True)
-    username = fields.CharField(max_length=255, null=True)
+    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="parameters")
+    parameter_set = fields.CharField(max_length=500, pk=True)
+    engine = fields.CharField(max_length=50)
+    max_tokens = fields.IntField()
+    temperature = fields.FloatField()
+    top_p = fields.FloatField()
+    n = fields.IntField()
+    stream = fields.BooleanField()
+    presence_penalty = fields.FloatField()
+    frequency_penalty = fields.FloatField()
+    username = fields.CharField(max_length=255)
 
     class Meta:
         table = "parameter"
+
