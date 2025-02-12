@@ -12,7 +12,7 @@ class Parameter(models.Model):
     stream = fields.BooleanField(null=True)
     presence_penalty = fields.FloatField(null=True)
     frequency_penalty = fields.FloatField(null=True)
-    user = fields.CharField(max_length=255, null=True)
+    username = fields.CharField(max_length=255, null=True)
 
     class Meta:
         table = "parameter"

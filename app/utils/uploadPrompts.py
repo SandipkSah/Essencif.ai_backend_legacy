@@ -50,7 +50,7 @@ async def insert_parameters(parameters):
                 stream=parameter.get('stream'),
                 presence_penalty=parameter.get('presence_penalty'),
                 frequency_penalty=parameter.get('frequency_penalty'),
-                user=parameter.get('user')
+                username=parameter.get('username')
             ).first()
 
             if not existing_parameter:
