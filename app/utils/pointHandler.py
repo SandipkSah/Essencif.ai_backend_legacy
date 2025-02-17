@@ -1,4 +1,4 @@
-from app.ormModels.points import UserPoints
+from app.ormModels.user_point import UserPoints
 from tortoise.exceptions import DoesNotExist
 from quart import current_app
 

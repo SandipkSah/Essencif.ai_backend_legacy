@@ -6,7 +6,7 @@ class UserPoints(Model):
     The status points of a user
     '''
     class Meta:
-        table = "user_points"
+        table = "user_point"
     
     user_id = fields.CharField(max_length=255, primary_key=True)
     points = fields.IntField()

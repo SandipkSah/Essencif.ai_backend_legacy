@@ -7,7 +7,7 @@ class UserQuestion(Model):
     Saves the question and response 
     '''
     class Meta:
-        table = "user_questions"
+        table = "user_question"
         ordering = ["-created_at"]  
     
     id = fields.IntField(pk=True) 

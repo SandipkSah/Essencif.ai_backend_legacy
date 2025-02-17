@@ -3,7 +3,7 @@ from .user_group import UserGroup
 
 class Parameter(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="parameter")
+    owner = fields.ForeignKeyField("models.UserGroup", related_name="parameter", source_field="owner")
     parameter_set = fields.CharField(max_length=500)
     engine = fields.CharField(max_length=50)
     max_tokens = fields.IntField()

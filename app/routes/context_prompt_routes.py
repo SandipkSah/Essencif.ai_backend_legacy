@@ -23,8 +23,15 @@ context_prompt_blueprint = Blueprint('context_prompt', __name__)
 async def get_contexts():
     """Retrieves context information from the database."""
     try:
-        contexts = await Context.all()
-        context_data = [{"id": context.id, "owner": context.owner, "contextname": context.contextname, "context": context.context} for context in contexts]
+        # Prefetch the related UserGroup data
+        contexts = await Context.all().prefetch_related('owner')
+        
+        context_data = [{
+            "id": context.id,
+            "owner": context.owner.id,  # Or any other UserGroup fields you need
+            "contextname": context.name,
+            "context": context.detailed_definition
+        } for context in contexts]
 
         return jsonify({"contexts": context_data})
 
@@ -49,45 +56,12 @@ async def get_contexts():
 
 
 
-@context_prompt_blueprint.route('/api/prompts', methods=['GET'])
-async def get_prompts():
-    """Retrieves prompt information from the database."""
-    try:
-        prompts = await Prompt.filter(owner='Default')
-        prompt_data = [{"id": prompt.id, "owner": prompt.owner, "promptname": prompt.promptname, "prompt": prompt.prompt} for prompt in prompts]
-
-        return jsonify({"prompts": prompt_data})
-
-    except Exception as e:
-        print(f"Error occurred while retrieving prompts: {str(e)}")
-        return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
-
-@context_prompt_blueprint.route('/api/parameters', methods=['GET'])
-async def get_parameters():
-    """Retrieves parameter information from the database."""
-    try:
-        parameters = await Parameter.filter(owner='Default')
-        parameter_data = [{"id": parameter.id, "owner": parameter.owner, "parameterset": parameter.parameterset, "engine": parameter.engine, "max_tokens": parameter.max_tokens, "temperature": parameter.temperature, "top_p": parameter.top_p, "n": parameter.n, "stream": parameter.stream, "presence_penalty": parameter.presence_penalty, "frequency_penalty": parameter.frequency_penalty, "user": parameter.username} for parameter in parameters]
-
-        return jsonify({"parameters": parameter_data})
-
-    except Exception as e:
-        print(f"Error occurred while retrieving parameters: {str(e)}")
-        return jsonify({"error": f"Failed to get parameters.{str(e)}"}), 500
-    
-
-
-
-
 # @context_prompt_blueprint.route('/api/prompts', methods=['GET'])
-# def get_prompts():
-#     """Retrieves prompt information from an Excel file."""
+# async def get_prompts():
+#     """Retrieves prompt information from the database."""
 #     try:
-#         df_prompt = pd.read_excel(excel_file, sheet_name="Prompts")
-#         df_prompt = df_prompt[df_prompt['Owner'] == 'Default']
-        
-#         # Convert DataFrame to JSON
-#         prompt_data = df_prompt.to_json(orient='records')
+#         prompts = await Prompt.filter(owner='1')
+#         prompt_data = [{"id": prompt.id, "owner": prompt.owner, "promptname": prompt.name, "prompt": prompt.detailed_definition} for prompt in prompts]
 
 #         return jsonify({"prompts": prompt_data})
 
@@ -95,18 +69,118 @@ async def get_parameters():
 #         print(f"Error occurred while retrieving prompts: {str(e)}")
 #         return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
 
-# @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
-# def get_parameters():
-#     """Retrieves prompt information from an Excel file."""
-#     try:
-#         df_parameters = pd.read_excel(excel_file, sheet_name="Parameter")
-#         df_parameters = df_parameters[df_parameters['Owner'] == 'Default']
+@context_prompt_blueprint.route('/api/prompts', methods=['GET'])
+async def get_prompts():
+    """Retrieves prompt information from the database."""
+    try:
+        # Prefetch the related owner data
+        prompts = await Prompt.filter(owner__id='1').prefetch_related('owner')
         
-#         # Convert DataFrame to JSON
-#         parameters_data = df_parameters.to_json(orient='records')
+        prompt_data = [{
+            "id": prompt.id,
+            "owner": prompt.owner.id,
+            "promptname": prompt.name,
+            "prompt": prompt.detailed_definition
+        } for prompt in prompts]
 
-#         return jsonify({"parameters": parameters_data})
+        return jsonify({"prompts": prompt_data})
+
+    except Exception as e:
+        print(f"Error occurred while retrieving prompts: {str(e)}")
+        return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
+
+
+# @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
+# async def get_parameters():
+#     """Retrieves parameter information from the database."""
+#     try:
+#         parameters = await Parameter.filter(owner='Default')
+#         parameter_data = [{"id": parameter.id, "owner": parameter.owner, "parameterset": parameter.parameter_set, "engine": parameter.engine, "max_tokens": parameter.max_tokens, "temperature": parameter.temperature, "top_p": parameter.top_p, "n": parameter.n, "stream": parameter.stream, "presence_penalty": parameter.presence_penalty, "frequency_penalty": parameter.frequency_penalty, "user": parameter.username} for parameter in parameters]
+
+#         return jsonify({"parameters": parameter_data})
 
 #     except Exception as e:
-#         print(f"Error occurred while retrieving prompts: {str(e)}")
-#         return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
+#         print(f"Error occurred while retrieving parameters: {str(e)}")
+#         return jsonify({"error": f"Failed to get parameters.{str(e)}"}), 500
+    
+# @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
+# async def get_parameters():
+#     """Retrieves parameter information from the database."""
+#     try:
+#         parameters = await Parameter.filter(owner='2').values(
+#             'id',
+#             'parameter_set',
+#             'engine',
+#             'max_tokens',
+#             'temperature',
+#             'top_p',
+#             'n',
+#             'stream',
+#             'presence_penalty',
+#             'frequency_penalty',
+#             'username',
+#             'owner'  # This is the UserGroup id
+#         )
+        
+#         parameter_data = [{
+#             "id": param['id'],
+#             "owner": param['owner__id'],  # or param['owner__name']
+#             "parameterset": param['parameter_set'],
+#             "engine": param['engine'],
+#             "max_tokens": param['max_tokens'],
+#             "temperature": param['temperature'],
+#             "top_p": param['top_p'],
+#             "n": param['n'],
+#             "stream": param['stream'],
+#             "presence_penalty": param['presence_penalty'],
+#             "frequency_penalty": param['frequency_penalty'],
+#             "user": param['username']
+#         } for param in parameters]
+
+#         return jsonify({"parameters": parameter_data})
+
+#     except Exception as e:
+#         print(f"Error occurred while retrieving parameters: {str(e)}")
+#         return jsonify({"error": f"Failed to get parameters.{str(e)}"}), 500
+
+@context_prompt_blueprint.route('/api/parameters', methods=['GET'])
+async def get_parameters():
+    """Retrieves parameter information from the database."""
+    try:
+        parameters = await Parameter.filter(owner__id='2').values(
+            'id',
+            'parameter_set',
+            'engine',
+            'max_tokens',
+            'temperature',
+            'top_p',
+            'n',
+            'stream',
+            'presence_penalty',
+            'frequency_penalty',
+            'username',
+            'owner_id',
+            'owner__name'  # Added to get the UserGroup name
+        )
+        
+        parameter_data = [{
+            "id": param['id'],
+            "owner": param['owner_id'],
+            "owner_name": param['owner__name'],  # Added owner name to response
+            "parameterset": param['parameter_set'],
+            "engine": param['engine'],
+            "max_tokens": param['max_tokens'],
+            "temperature": param['temperature'],
+            "top_p": param['top_p'],
+            "n": param['n'],
+            "stream": param['stream'],
+            "presence_penalty": param['presence_penalty'],
+            "frequency_penalty": param['frequency_penalty'],
+            "user": param['username']
+        } for param in parameters]
+
+        return jsonify({"parameters": parameter_data})
+
+    except Exception as e:
+        print(f"Error occurred while retrieving parameters: {str(e)}")
+        return jsonify({"error": f"Failed to get parameters.{str(e)}"}), 500

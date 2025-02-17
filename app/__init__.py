@@ -29,7 +29,7 @@ async def init_tortoise():
                 "app.ormModels.fact",
                 "app.ormModels.implementation",
                 "app.ormModels.parameter",
-                "app.ormModels.points",
+                "app.ormModels.user_point",
                 "app.ormModels.prompt", 
                 "app.ormModels.rating", 
                 "app.ormModels.result",
@@ -89,4 +89,4 @@ async def after_request(response):
 if __name__ == "__main__":
     # app.run(debug=True)
     port = int(os.getenv("PORT", 8000))  # Default to 8000 if PORT is not set
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

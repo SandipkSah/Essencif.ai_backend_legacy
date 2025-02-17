@@ -7,11 +7,11 @@ from .user_group import UserGroup
 
 class Result(models.Model):
     id_llm = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="result")
-    document_id = fields.ForeignKeyField("models.Document", related_name="result")
-    context_id = fields.ForeignKeyField("models.Context", related_name="result")
-    prompt_id = fields.ForeignKeyField("models.Prompt", related_name="result")
-    parameter_id = fields.ForeignKeyField("models.Parameter", related_name="result")
+    owner = fields.ForeignKeyField("models.UserGroup", related_name="result", source_field="owner")
+    document_id = fields.ForeignKeyField("models.Document", related_name="result", source_field="document_id")
+    context_id = fields.ForeignKeyField("models.Context", related_name="result",source_field="context_id")
+    prompt_id = fields.ForeignKeyField("models.Prompt", related_name="result", source_field="prompt_id")
+    parameter_id = fields.ForeignKeyField("models.Parameter", related_name="result", source_field="parameter_id")
     file = fields.CharField(max_length=1000)
     engine = fields.CharField(max_length=50)
     context = fields.TextField()

@@ -3,8 +3,8 @@ from .user_group import UserGroup
 
 class Prompt(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="prompt")
-    name = fields.CharField(max_length=255, unique=True)
+    owner = fields.ForeignKeyField("models.UserGroup", related_name="prompt", source_field="owner")
+    name = fields.CharField(max_length=255)
     detailed_definition = fields.TextField()
     level = fields.CharField(max_length=255)
 
