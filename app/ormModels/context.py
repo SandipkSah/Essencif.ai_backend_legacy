@@ -1,11 +1,12 @@
 from tortoise import fields, models
 from .user_group import UserGroup
 
-class Context(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="contexts")   
-    context_name = fields.CharField(max_length=255, pk=True)
-    context = fields.TextField()
+class Prompt(models.Model):
+    id = fields.IntField(pk=True)
+    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="context")
+    name = fields.CharField(max_length=255, unique=True)
+    detailed_definition = fields.TextField()
+    level = fields.CharField(max_length=255)
 
     class Meta:
-        table = "context"
-
+        table = "prompt"

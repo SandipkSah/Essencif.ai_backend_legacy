@@ -23,7 +23,10 @@ async def init_tortoise():
             "models": [
                 "app.ormModels.applicationAdmins",
                 "app.ormModels.context",
+                "app.ormModels.dim_fact",
+                "app.ormModels.dim_object",
                 "app.ormModels.document",
+                "app.ormModels.fact",
                 "app.ormModels.implementation",
                 "app.ormModels.parameter",
                 "app.ormModels.points",

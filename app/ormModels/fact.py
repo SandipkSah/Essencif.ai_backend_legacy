@@ -7,5 +7,5 @@ class Fact(models.Model):
     value = fields.FloatField()
 
     class Meta:
-        table = "facts"
+        table = "fact"
 

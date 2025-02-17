@@ -4,5 +4,5 @@ class DimObject(models.Model):
     object_id = fields.IntField(pk=True)
 
     class Meta:
-        table = "dim_objects"
+        table = "dim_object"
 

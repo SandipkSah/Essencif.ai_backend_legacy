@@ -7,5 +7,5 @@ class DimFact(models.Model):
     description = fields.TextField()
 
     class Meta:
-        table = "dim_facts"
+        table = "dim_fact"
 

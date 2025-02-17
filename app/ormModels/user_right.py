@@ -3,10 +3,11 @@ from .user import User
 from .user_group import UserGroup
 
 class UserRights(models.Model):
+    id = fields.IntField(pk=True)
     user = fields.ForeignKeyField("models.User", related_name="user_rights")
-    user_group_name = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="user_rights") 
-    admin_role = fields.BooleanField()
-    member_role = fields.BooleanField()
+    user_group = fields.ForeignKeyField("models.UserGroup", related_name="user_rights") 
+    role = fields.CharField(max_length=255)
+    
 
     class Meta:
         table = "user_rights"

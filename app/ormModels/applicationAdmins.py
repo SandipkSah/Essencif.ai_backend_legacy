@@ -8,7 +8,7 @@ class ApplicationAdmins(Model):
     People who should be administrator
     '''
     class Meta:
-        table = "application_admins"
+        table = "application_admin"
     
     user_id = fields.CharField(max_length=255, primary_key=True)
 
