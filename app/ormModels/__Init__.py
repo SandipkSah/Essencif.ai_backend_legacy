@@ -1,6 +1,6 @@
 from .user import User
 from .user_group import UserGroup
-from .user_right import UserRights
+from .user_right import UserRight
 from .implementation import Implementation
 from .document import Document
 from .context import Context

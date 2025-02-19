@@ -24,6 +24,8 @@ class Result(models.Model):
     presence_penalty = fields.FloatField()
     frequency_penalty = fields.FloatField()
     result = fields.TextField()
+    filename = fields.CharField(max_length=255)
+
 
     class Meta:
         table = "result"
