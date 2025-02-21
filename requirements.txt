@@ -40,7 +40,7 @@ uvicorn==0.30.5
 waitress==3.0.0
 webencodings==0.5.1
 Werkzeug==3.0.3
-yfinance==0.2.41
+yfinance==0.2.54
 PyPDF2==3.0.1
 openpyxl==3.1.5
 pycryptodome==3.20.0
