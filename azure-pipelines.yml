@@ -123,7 +123,7 @@ stages:
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
-    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-development '
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-production'
     AZURE_COMPILATION_ENV: 'production'
     
   jobs:
@@ -141,7 +141,7 @@ stages:
             displayName: 'Use Python version'
 
           - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : essencifai-backend-development '
+            displayName: 'Deploy Azure Web App : essencifai-backend-production'
             inputs:
               azureSubscription: $(azureServiceConnection)
               appName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
