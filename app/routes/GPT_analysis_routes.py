@@ -126,7 +126,7 @@ def read_pdf(file_path):
 def summarize_text_document(text, parameter, context):
     messages = [
         {"role": "system", "content": context},
-        {"role": "user", "content": parameter['Prompt'] + text}
+        {"role": "user", "content": parameter['prompt'] + text}
     ]
 
     client = openai.OpenAI(api_key=OPENAI_KEY)
@@ -146,7 +146,7 @@ def summarize_text_document(text, parameter, context):
 def summarize_text_annual_report(text, parameter, context):
     messages = [
         {"role": "system", "content": context},
-        {"role": "user", "content": parameter['Prompt'] + text}
+        {"role": "user", "content": parameter['prompt'] + text}
     ]
 
     client = openai.OpenAI(api_key=OPENAI_KEY)
@@ -166,7 +166,7 @@ def summarize_text_annual_report(text, parameter, context):
 def summarize_text_website(link, parameter, context):
     # messages = [
     #     {"role": "system", "content": context},
-    #     {"role": "user", "content": parameter['Prompt']}
+    #     {"role": "user", "content": parameter['prompt']}
     # ]
 
     # client = openai.OpenAI(api_key=OPENAI_KEY)
@@ -188,7 +188,7 @@ def summarize_text_website(link, parameter, context):
 def summarize_text_internet(parameter, context):
     messages = [
         {"role": "system", "content": context},
-        {"role": "user", "content": parameter['Prompt']}
+        {"role": "user", "content": parameter['prompt']}
     ]
 
     client = openai.OpenAI(api_key=OPENAI_KEY)

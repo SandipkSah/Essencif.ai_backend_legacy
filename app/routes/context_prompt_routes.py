@@ -1,112 +1,157 @@
-from quart import Blueprint, jsonify
+from quart import Blueprint, jsonify, request
 from app.ormModels.context import Context
 from app.ormModels.prompt import Prompt
 from app.ormModels.parameter import Parameter
-
-import pandas as pd
-import os
+from app.ormModels.user_right import UserRight  # Import the UserRight model
+from app.ormModels.applicationAdmins import ApplicationAdmins  # Import ApplicationAdmins model
+from app.ormModels.user_group import UserGroup  # Import UserGroup model
 
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
-# Read prompts from Excel
-# current_env = os.getenv('CURRENT_QUART_ENV', "development")
-# if (current_env == 'development'):
-#     excel_file = 'Chat GPT.xlsx'
-# else:
-#     # for now it is this way, but it needs to be changed
-#     #  depending on the location excel database file
-#     excel_file = '/home/data/Chat GPT.xlsx'
 
-
-
+EssencifAI_ID = 1
 
 @context_prompt_blueprint.route('/api/contexts', methods=['GET'])
 async def get_contexts():
-    """Retrieves context information from the database."""
+    """Retrieves context information from the database, ensuring all users have access."""
     try:
-        contexts = await Context.all()
-        context_data = [{"id": context.id, "owner": context.owner, "contextname": context.contextname, "context": context.context} for context in contexts]
-
+        user_id = request.args.get("user_id", type=int)
+        
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all contexts with the role of admin
+            contexts = await Context.all().prefetch_related('owner')
+            context_data = [{
+                "id": context.id,
+                "owner": context.owner.name,  # Get owner's name instead of ID
+                "contextname": context.name,
+                "context": context.detailed_definition
+            } for context in contexts]
+            return jsonify({"contexts": context_data})
+        
+        # All users should have access to EssencifAI_ID contexts, plus additional ones if they belong to user groups
+        user_groups = [EssencifAI_ID]
+        if user_id:
+            user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
+        
+        # Fetch all contexts plus additional ones from user groups
+        contexts = await Context.filter(owner_id__in=user_groups).prefetch_related('owner')
+        
+        context_data = [{
+            "id": context.id,
+            "owner": context.owner.name,  # Get owner's name instead of ID
+            "contextname": context.name,
+            "context": context.detailed_definition
+        } for context in contexts]
+        
         return jsonify({"contexts": context_data})
-
+    
     except Exception as e:
         print(f"Error occurred while retrieving contexts: {str(e)}")
-        return jsonify({"error": f"Failed to get contexts.{str(e)}"}), 500
-    
-    # @context_prompt_blueprint.route('/api/contexts', methods=['GET'])
-    # def get_contexts():
-    #     """Retrieves context information from an Excel file."""
-    #     try:
-    #         df_context = pd.read_excel(excel_file, sheet_name="Context")
-
-    #         # Convert DataFrame to JSON
-    #         context_data = df_context.to_json(orient='records')
-
-    #         return jsonify({"contexts": context_data})
-
-    #     except Exception as e:
-    #         print(f"Error occurred while retrieving contexts: {str(e)}")
-    #         return jsonify({"error": f"Failed to get contexts.{str(e)}"}), 500
-
+        return jsonify({"error": f"Failed to get contexts. {str(e)}"}), 500
 
 
 @context_prompt_blueprint.route('/api/prompts', methods=['GET'])
 async def get_prompts():
-    """Retrieves prompt information from the database."""
+    """Retrieves prompt information from the database, ensuring all users have access."""
     try:
-        prompts = await Prompt.filter(owner='Default')
-        prompt_data = [{"id": prompt.id, "owner": prompt.owner, "promptname": prompt.promptname, "prompt": prompt.prompt} for prompt in prompts]
-
+        user_id = request.args.get("user_id", type=int)
+        
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all prompts with the role of admin
+            prompts = await Prompt.all().prefetch_related('owner')
+            prompt_data = [{
+                "id": prompt.id,
+                "owner": prompt.owner.name,  # Get owner's name instead of ID
+                "promptname": prompt.name,
+                "prompt": prompt.detailed_definition
+            } for prompt in prompts]
+            return jsonify({"prompts": prompt_data})
+        
+        user_groups = [EssencifAI_ID]
+        if user_id:
+            user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
+        
+        # Fetch all prompts plus additional ones from user groups
+        prompts = await Prompt.filter(owner_id__in=user_groups).prefetch_related('owner')
+        
+        prompt_data = [{
+            "id": prompt.id,
+            "owner": prompt.owner.name,  # Get owner's name instead of ID
+            "promptname": prompt.name,
+            "prompt": prompt.detailed_definition
+        } for prompt in prompts]
+        
         return jsonify({"prompts": prompt_data})
-
+    
     except Exception as e:
         print(f"Error occurred while retrieving prompts: {str(e)}")
-        return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
+        return jsonify({"error": f"Failed to get prompts. {str(e)}"}), 500
+
 
 @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
 async def get_parameters():
-    """Retrieves parameter information from the database."""
+    """Retrieves parameter information from the database, ensuring all users have access."""
     try:
-        parameters = await Parameter.filter(owner='Default')
-        parameter_data = [{"id": parameter.id, "owner": parameter.owner, "parameterset": parameter.parameterset, "engine": parameter.engine, "max_tokens": parameter.max_tokens, "temperature": parameter.temperature, "top_p": parameter.top_p, "n": parameter.n, "stream": parameter.stream, "presence_penalty": parameter.presence_penalty, "frequency_penalty": parameter.frequency_penalty, "user": parameter.username} for parameter in parameters]
-
+        user_id = request.args.get("user_id", type=int)
+        
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all parameters with the role of admin
+            parameters = await Parameter.all().values(
+                'id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
+                'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
+            )
+            parameter_data = [{
+                "id": param['id'],
+                "owner": param['owner__name'],  # Get owner's name instead of ID
+                "parameterset": param['parameter_set'],
+                "engine": param['engine'],
+                "max_tokens": param['max_tokens'],
+                "temperature": param['temperature'],
+                "top_p": param['top_p'],
+                "n": param['n'],
+                "stream": param['stream'],
+                "presence_penalty": param['presence_penalty'],
+                "frequency_penalty": param['frequency_penalty'],
+                "user": param['username']
+            } for param in parameters]
+            return jsonify({"parameters": parameter_data})
+        
+        user_groups = [EssencifAI_ID]
+        if user_id:
+            user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
+        
+        print(f"User ID: {user_id}, User Groups: {user_groups}")
+        
+        # Fetch all parameters plus additional ones from user groups
+        parameters = await Parameter.filter(owner_id__in=user_groups).values(
+            'id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
+            'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
+        )
+        
+        # print(f"Retrieved parameters: {parameters}")
+        
+        parameter_data = [{
+            "id": param['id'],
+            "owner": param['owner__name'],  # Get owner's name instead of ID
+            "parameterset": param['parameter_set'],
+            "engine": param['engine'],
+            "max_tokens": param['max_tokens'],
+            "temperature": param['temperature'],
+            "top_p": param['top_p'],
+            "n": param['n'],
+            "stream": param['stream'],
+            "presence_penalty": param['presence_penalty'],
+            "frequency_penalty": param['frequency_penalty'],
+            "user": param['username']
+        } for param in parameters]
+        
         return jsonify({"parameters": parameter_data})
-
+    
     except Exception as e:
         print(f"Error occurred while retrieving parameters: {str(e)}")
-        return jsonify({"error": f"Failed to get parameters.{str(e)}"}), 500
-    
-
-
-
-
-# @context_prompt_blueprint.route('/api/prompts', methods=['GET'])
-# def get_prompts():
-#     """Retrieves prompt information from an Excel file."""
-#     try:
-#         df_prompt = pd.read_excel(excel_file, sheet_name="Prompts")
-#         df_prompt = df_prompt[df_prompt['Owner'] == 'Default']
-        
-#         # Convert DataFrame to JSON
-#         prompt_data = df_prompt.to_json(orient='records')
-
-#         return jsonify({"prompts": prompt_data})
-
-#     except Exception as e:
-#         print(f"Error occurred while retrieving prompts: {str(e)}")
-#         return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
-
-# @context_prompt_blueprint.route('/api/parameters', methods=['GET'])
-# def get_parameters():
-#     """Retrieves prompt information from an Excel file."""
-#     try:
-#         df_parameters = pd.read_excel(excel_file, sheet_name="Parameter")
-#         df_parameters = df_parameters[df_parameters['Owner'] == 'Default']
-        
-#         # Convert DataFrame to JSON
-#         parameters_data = df_parameters.to_json(orient='records')
-
-#         return jsonify({"parameters": parameters_data})
-
-#     except Exception as e:
-#         print(f"Error occurred while retrieving prompts: {str(e)}")
-#         return jsonify({"error": f"Failed to get prompts.{str(e)}"}), 500
+        return jsonify({"error": f"Failed to get parameters. {str(e)}"}), 500
