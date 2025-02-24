@@ -2,7 +2,7 @@ from quart import Quart
 from quart_cors import cors
 from dotenv import load_dotenv
 from tortoise import Tortoise
-from app.ormModels.applicationAdmins import ensure_default_admins
+
 import config
 from quart import current_app
 import os
@@ -42,8 +42,6 @@ async def init_tortoise():
     )
     await Tortoise.generate_schemas(safe=True)
     
-    # Ensure default admin entries exist
-    await ensure_default_admins()
 
 # Initialize the database (you should now await this in the main async function)
 @app.before_serving
@@ -63,6 +61,9 @@ from app.routes.linkProject.links import link_blueprint
 from app.routes.linkProject.rating import rating_blueprint
 from app.routes.linkProject.points import point_blueprint
 from app.routes.linkProject.adminCheck import adminCheck_blueprint
+from app.routes.rights_routes import rights_blueprint
+from app.routes.implementation_routes import implementation_blueprint
+
 
 # Register blueprints (same as before)
 app.register_blueprint(base_blueprint)
@@ -77,6 +78,8 @@ app.register_blueprint(link_blueprint)
 app.register_blueprint(rating_blueprint)
 app.register_blueprint(point_blueprint)
 app.register_blueprint(adminCheck_blueprint)
+app.register_blueprint(rights_blueprint)
+app.register_blueprint(implementation_blueprint)
 
 # CORS header middleware
 @app.after_request

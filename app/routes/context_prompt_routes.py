@@ -3,10 +3,12 @@ from app.ormModels.context import Context
 from app.ormModels.prompt import Prompt
 from app.ormModels.parameter import Parameter
 from app.ormModels.user_right import UserRight  # Import the UserRight model
+from app.ormModels.applicationAdmins import ApplicationAdmins  # Import ApplicationAdmins model
+from app.ormModels.user_group import UserGroup  # Import UserGroup model
 
 context_prompt_blueprint = Blueprint('context_prompt', __name__)
 
-DEFAULT_OWNER_ID = 1
+EssencifAI_ID = 1
 
 @context_prompt_blueprint.route('/api/contexts', methods=['GET'])
 async def get_contexts():
@@ -14,8 +16,21 @@ async def get_contexts():
     try:
         user_id = request.args.get("user_id", type=int)
         
-        # All users should have access to DEFAULT_OWNER_ID contexts, plus additional ones if they belong to user groups
-        user_groups = [DEFAULT_OWNER_ID]
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all contexts with the role of admin
+            contexts = await Context.all().prefetch_related('owner')
+            context_data = [{
+                "id": context.id,
+                "owner": context.owner.name,  # Get owner's name instead of ID
+                "contextname": context.name,
+                "context": context.detailed_definition
+            } for context in contexts]
+            return jsonify({"contexts": context_data})
+        
+        # All users should have access to EssencifAI_ID contexts, plus additional ones if they belong to user groups
+        user_groups = [EssencifAI_ID]
         if user_id:
             user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
         
@@ -42,7 +57,20 @@ async def get_prompts():
     try:
         user_id = request.args.get("user_id", type=int)
         
-        user_groups = [DEFAULT_OWNER_ID]
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all prompts with the role of admin
+            prompts = await Prompt.all().prefetch_related('owner')
+            prompt_data = [{
+                "id": prompt.id,
+                "owner": prompt.owner.name,  # Get owner's name instead of ID
+                "promptname": prompt.name,
+                "prompt": prompt.detailed_definition
+            } for prompt in prompts]
+            return jsonify({"prompts": prompt_data})
+        
+        user_groups = [EssencifAI_ID]
         if user_id:
             user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
         
@@ -69,7 +97,31 @@ async def get_parameters():
     try:
         user_id = request.args.get("user_id", type=int)
         
-        user_groups = [DEFAULT_OWNER_ID]
+        # Check if the user is a global admin
+        is_admin = await ApplicationAdmins.filter(user_id=user_id).exists()
+        if is_admin:
+            # Provide access to all parameters with the role of admin
+            parameters = await Parameter.all().values(
+                'id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
+                'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
+            )
+            parameter_data = [{
+                "id": param['id'],
+                "owner": param['owner__name'],  # Get owner's name instead of ID
+                "parameterset": param['parameter_set'],
+                "engine": param['engine'],
+                "max_tokens": param['max_tokens'],
+                "temperature": param['temperature'],
+                "top_p": param['top_p'],
+                "n": param['n'],
+                "stream": param['stream'],
+                "presence_penalty": param['presence_penalty'],
+                "frequency_penalty": param['frequency_penalty'],
+                "user": param['username']
+            } for param in parameters]
+            return jsonify({"parameters": parameter_data})
+        
+        user_groups = [EssencifAI_ID]
         if user_id:
             user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
         
@@ -81,7 +133,7 @@ async def get_parameters():
             'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
         )
         
-        print(f"Retrieved parameters: {parameters}")
+        # print(f"Retrieved parameters: {parameters}")
         
         parameter_data = [{
             "id": param['id'],
