@@ -21,6 +21,7 @@ async def  aprompts_upload():
 
     try:
         # Decode the base64-encoded file content
+        owner = data['owner']
         file_content = base64.b64decode(data['excel_file'])
         input_file = io.BytesIO(file_content)
 
@@ -36,16 +37,16 @@ async def  aprompts_upload():
         # parameters = pd.read_excel(uploaded_wb, sheet_name='Parameter')
 
         # Read Excel directly from BytesIO without openpyxl
-        prompts = pd.read_excel(input_file, sheet_name='Prompts').to_dict(orient='records')
-        contexts = pd.read_excel(input_file, sheet_name='Context').to_dict(orient='records')
-        parameters = pd.read_excel(input_file, sheet_name='Parameter').to_dict(orient='records')
+        prompts = pd.read_excel(input_file, sheet_name='prompt').to_dict(orient='records')
+        contexts = pd.read_excel(input_file, sheet_name='context').to_dict(orient='records')
+        parameters = pd.read_excel(input_file, sheet_name='parameter').to_dict(orient='records')
 
 
         try:
             # Upload the prompts, contexts, and parameters to the database
-            await insert_prompts(prompts)
-            await insert_contexts(contexts)
-            await insert_parameters(parameters)
+            # await insert_prompts(prompts, owner=owner)
+            await insert_contexts(contexts, owner=owner)
+            await insert_parameters(parameters, owner=owner)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         

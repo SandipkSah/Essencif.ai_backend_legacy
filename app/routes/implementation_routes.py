@@ -7,6 +7,7 @@ implementation_blueprint = Blueprint('implementation', __name__)
 async def get_implementations():
     data = await request.get_json()
     project_ids = data.get('projects')
+    # print("what are the projeeeeeeeeeee", project_ids)
     if not project_ids:
         return jsonify({"error": "projects_list is required"}), 400
 
@@ -24,4 +25,5 @@ async def get_implementations():
         }
         for impl in implementations
     ]
+    # print("implementations_data", implementations_data)
     return jsonify(implementations_data), 200
