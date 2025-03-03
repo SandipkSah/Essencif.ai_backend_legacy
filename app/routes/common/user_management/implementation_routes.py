@@ -1,5 +1,5 @@
 from quart import Blueprint, request, jsonify
-from app.ormModels.implementation import Implementation
+from app.models.implementation import Implementation
 
 implementation_blueprint = Blueprint('implementation', __name__)
 

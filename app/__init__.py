@@ -3,9 +3,11 @@ from quart_cors import cors
 from dotenv import load_dotenv
 from tortoise import Tortoise
 
+
 import config
 from quart import current_app
 import os
+from app.routes import register_blueprint
 
 app = Quart(__name__)
 app.config.from_object(config)
@@ -21,22 +23,22 @@ async def init_tortoise():
         db_url=current_app.config.get("DB_URL", "sqlite://essencifai"),
         modules={
             "models": [
-                "app.ormModels.applicationAdmins",
-                "app.ormModels.context",
-                "app.ormModels.dim_fact",
-                "app.ormModels.dim_object",
-                "app.ormModels.document",
-                "app.ormModels.fact",
-                "app.ormModels.implementation",
-                "app.ormModels.parameter",
-                "app.ormModels.user_point",
-                "app.ormModels.prompt", 
-                "app.ormModels.rating", 
-                "app.ormModels.result",
-                "app.ormModels.user_group",
-                "app.ormModels.user_right",
-                "app.ormModels.user",
-                "app.ormModels.user_question_history", 
+                "app.models.applicationAdmins",
+                "app.models.context",
+                "app.models.dim_fact",
+                "app.models.dim_object",
+                "app.models.document",
+                "app.models.fact",
+                "app.models.implementation",
+                "app.models.parameter",
+                "app.models.user_point",
+                "app.models.prompt", 
+                "app.models.rating", 
+                "app.models.result",
+                "app.models.user_group",
+                "app.models.user_right",
+                "app.models.user",
+                "app.models.user_question_history", 
                 ]
             },
     )
@@ -48,38 +50,41 @@ async def init_tortoise():
 async def init():
     await init_tortoise()
 
-# Import blueprints (same as before)
-from app.routes.base_routes import base_blueprint
-from app.routes.stock_search_routes import stock_search_blueprint
-from app.routes.stock_details_routes import stock_details_blueprint
-from app.routes.financial_data_routes import financial_data_blueprint
-from app.routes.GPT_analysis_routes import GPT_analysis_blueprint
-from app.routes.context_prompt_routes import context_prompt_blueprint
-from app.routes.prompts_upload_routes import prompt_upload_blueprint
-from app.routes.linkProject.queryQDrant import query_blueprint
-from app.routes.linkProject.links import link_blueprint
-from app.routes.linkProject.rating import rating_blueprint
-from app.routes.linkProject.points import point_blueprint
-from app.routes.linkProject.adminCheck import adminCheck_blueprint
-from app.routes.rights_routes import rights_blueprint
-from app.routes.implementation_routes import implementation_blueprint
+# # Import blueprints (same as before)
+# from app.routes.base_routes import base_blueprint
+# from app.routes.stock_search_routes import stock_search_blueprint
+# from app.routes.stock_details_routes import stock_details_blueprint
+# from app.routes.financial_data_routes import financial_data_blueprint
+# from app.routes.GPT_analysis_routes import GPT_analysis_blueprint
+# from app.routes.context_prompt_routes import context_prompt_blueprint
+# from app.routes.prompts_upload_routes import prompt_upload_blueprint
+# from app.routes.linkProject.queryQDrant import query_blueprint
+# from app.routes.linkProject.links import link_blueprint
+# from app.routes.linkProject.rating import rating_blueprint
+# from app.routes.linkProject.points import point_blueprint
+# from app.routes.linkProject.adminCheck import adminCheck_blueprint
+# from app.routes.rights_routes import rights_blueprint
+# from app.routes.implementation_routes import implementation_blueprint
 
 
-# Register blueprints (same as before)
-app.register_blueprint(base_blueprint)
-app.register_blueprint(stock_search_blueprint)
-app.register_blueprint(stock_details_blueprint)
-app.register_blueprint(financial_data_blueprint)
-app.register_blueprint(GPT_analysis_blueprint)
-app.register_blueprint(context_prompt_blueprint)
-app.register_blueprint(prompt_upload_blueprint)
-app.register_blueprint(query_blueprint)
-app.register_blueprint(link_blueprint)
-app.register_blueprint(rating_blueprint)
-app.register_blueprint(point_blueprint)
-app.register_blueprint(adminCheck_blueprint)
-app.register_blueprint(rights_blueprint)
-app.register_blueprint(implementation_blueprint)
+
+# # Register blueprints (same as before)
+# app.register_blueprint(base_blueprint)
+# app.register_blueprint(stock_search_blueprint)
+# app.register_blueprint(stock_details_blueprint)
+# app.register_blueprint(financial_data_blueprint)
+# app.register_blueprint(GPT_analysis_blueprint)
+# app.register_blueprint(context_prompt_blueprint)
+# app.register_blueprint(prompt_upload_blueprint)
+# app.register_blueprint(query_blueprint)
+# app.register_blueprint(link_blueprint)
+# app.register_blueprint(rating_blueprint)
+# app.register_blueprint(point_blueprint)
+# app.register_blueprint(adminCheck_blueprint)
+# app.register_blueprint(rights_blueprint)
+# app.register_blueprint(implementation_blueprint)
+
+register_blueprint(app)
 
 # CORS header middleware
 @app.after_request

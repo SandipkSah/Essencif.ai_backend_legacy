@@ -1,4 +1,4 @@
-from app.ormModels.applicationAdmins import ApplicationAdmins
+from app.models.applicationAdmins import ApplicationAdmins
 from tortoise.exceptions import DoesNotExist
 
 async def is_user_admin(user_id: str) -> bool:

@@ -1,13 +1,23 @@
 from quart import Blueprint, jsonify
 import pandas as pd
 import json
+import os
 
 stock_search_blueprint = Blueprint('stock_search', __name__)
 
-stocks_df = pd.read_csv('updated_stocks_list.csv', delimiter=";", encoding='MacRoman')
+# Use an absolute path to the CSV file
+csv_file_path = os.path.join(os.path.dirname(__file__), 'updated_stocks_list.csv')
+
+try:
+    stocks_df = pd.read_csv(csv_file_path, delimiter=";", encoding='MacRoman')
+except FileNotFoundError:
+    stocks_df = pd.DataFrame()  # Create an empty DataFrame or handle the error as needed
 
 @stock_search_blueprint.route('/api/search_stocks/<search_query>', methods=['GET'])
 def stock_search(search_query):
+    if stocks_df.empty:
+        return jsonify({"error": "Stocks data not available"}), 500
+
     search_query_lower = search_query.lower()
 
     # Handle the case where ISIN might be NaN

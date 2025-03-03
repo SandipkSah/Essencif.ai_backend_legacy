@@ -1,6 +1,6 @@
-from app.ormModels.context import Context
-from app.ormModels.parameter import Parameter
-from app.ormModels.prompt import Prompt
+from app.models.context import Context
+from app.models.parameter import Parameter
+from app.models.prompt import Prompt
 
 
 # async def insert_prompts(prompts, owner):

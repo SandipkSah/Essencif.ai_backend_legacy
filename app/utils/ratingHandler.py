@@ -1,4 +1,4 @@
-from app.ormModels.rating import Rating
+from app.models.rating import Rating
 from app.utils.pointHandler import grant_points
 
 

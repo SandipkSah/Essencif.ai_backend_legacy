@@ -1,9 +1,9 @@
 from quart import Blueprint, request, jsonify
 from app.utils.adminHandler import is_user_admin
 
-adminCheck_blueprint = Blueprint('adminCheck', __name__)
+admin_check_blueprint = Blueprint('admin_check', __name__)
 
-@adminCheck_blueprint.route('/api/adminCheck', methods=['GET'])
+@admin_check_blueprint.route('/api/admin_check', methods=['GET'])
 async def is_admin():
     """
     Checks if the user is in the admin table and should get admin rights
