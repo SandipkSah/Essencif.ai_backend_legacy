@@ -23,39 +23,39 @@ class User(models.Model):
         table = "users"
 '''
 
-files[user_group.py]='''from tortoise import fields, models
+files[solution_group.py]='''from tortoise import fields, models
 from .user import User
 
-class UserGroup(models.Model):
-    user_group_id = fields.IntField(pk=True)
+class SolutionGroup(models.Model):
+    solution_group_id = fields.IntField(pk=True)
     group_name = fields.CharField(max_length=255, unique=True)
     admin = fields.ForeignKeyField("models.User", related_name="admin_groups")
 
     class Meta:
-        table = "user_groups"
+        table = "solution_groups"
 '''
 
-files[user_rights.py]='''from tortoise import fields, models
+files[user_roles.py]='''from tortoise import fields, models
 from .user import User
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
-class UserRights(models.Model):
+class userRoles(models.Model):
     user = fields.ForeignKeyField("models.User", related_name="rights")
-    user_group_name = fields.ForeignKeyField("models.UserGroup", related_name="user_rights")
+    solution_group_name = fields.ForeignKeyField("models.SolutionGroup", related_name="user_roles")
     admin_role = fields.BooleanField()
     member_role = fields.BooleanField()
 
     class Meta:
-        table = "user_rights"
+        table = "user_roles"
 '''
 
 files[implementation.py]='''from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Implementation(models.Model):
     implementation_id = fields.IntField(pk=True)
     implementation = fields.CharField(max_length=255, unique=True)
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="implementations")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="implementations")
     colour_1 = fields.CharField(max_length=50)
     colour_2 = fields.CharField(max_length=50)
     colour_3 = fields.CharField(max_length=50)
@@ -69,10 +69,10 @@ class Implementation(models.Model):
 '''
 
 files[document.py]='''from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Document(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="documents")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="documents")
     filename = fields.CharField(max_length=500, pk=True)
     file = fields.CharField(max_length=1000)
 
@@ -81,10 +81,10 @@ class Document(models.Model):
 '''
 
 files[context.py]='''from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Context(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="contexts")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="contexts")
     context_name = fields.CharField(max_length=255, pk=True)
     context = fields.TextField()
 
@@ -93,10 +93,10 @@ class Context(models.Model):
 '''
 
 files[prompt.py]='''from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Prompt(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="prompts")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="prompts")
     prompt_name = fields.CharField(max_length=255, pk=True)
     prompt = fields.TextField()
 
@@ -105,10 +105,10 @@ class Prompt(models.Model):
 '''
 
 files[parameter.py]='''from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Parameter(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="parameters")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="parameters")
     parameter_set = fields.CharField(max_length=500, pk=True)
     engine = fields.CharField(max_length=50)
     max_tokens = fields.IntField()
@@ -129,11 +129,11 @@ from .document import Document
 from .context import Context
 from .prompt import Prompt
 from .parameter import Parameter
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Result(models.Model):
     id_llm = fields.IntField(pk=True)
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="results")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="results")
     filename = fields.ForeignKeyField("models.Document", related_name="results")
     context_name = fields.ForeignKeyField("models.Context", related_name="results")
     prompt_name = fields.ForeignKeyField("models.Prompt", related_name="results")

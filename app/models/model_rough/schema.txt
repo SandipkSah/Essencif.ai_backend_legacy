@@ -11,16 +11,16 @@ Table application_admin{
   user_id INT [primary key]
 }
 
-Table user_group {
+Table solution_group {
     id INT [primary key]
     name VARCHAR(255) 
     admin INT
 }
 
-Table user_right {
+Table user_role {
     id INT [primary key]
     user_id INT
-    user_group VARCHAR(255)
+    solution_group VARCHAR(255)
     role varchar(255)
 }
 
@@ -124,19 +124,19 @@ Table fact {
 
 // -- Relationships
 Ref: users.user_id < application_admin.user_id
-Ref: users.user_id < user_right.user_id
-Ref: users.user_id < user_group.admin
-Ref: user_group.id < user_right.user_group
-Ref: user_group.id < implementation.owner_id
-Ref: user_group.id < result.owner_id
-Ref: user_group.id < document.owner_id
+Ref: users.user_id < user_role.user_id
+Ref: users.user_id < solution_group.admin
+Ref: solution_group.id < user_role.solution_group
+Ref: solution_group.id < implementation.owner_id
+Ref: solution_group.id < result.owner_id
+Ref: solution_group.id < document.owner_id
 Ref: document.id < result.document_id
 Ref: context.id < result.context_id
 Ref: prompt.id < result.prompt_id
 Ref: parameter.parameter_set < result.parameter_id
-Ref: user_group.id < context.owner_id
-Ref: user_group.id < prompt.owner_id
-Ref: user_group.id < parameter.owner_id
+Ref: solution_group.id < context.owner_id
+Ref: solution_group.id < prompt.owner_id
+Ref: solution_group.id < parameter.owner_id
 
 
 

@@ -37,8 +37,8 @@ async def insert_prompts(prompts, owner):
             
             # Create a dictionary with the correct field names
             prompt_data = {
-                "owner_id": owner,  # Assuming owner is the ID of the UserGroup
-                "name": prompt.get("name", ""),
+                "owner_id": owner,  # Assuming owner is the ID of the SolutionGroup
+                "prompt_name": prompt.get("prompt_name", ""),
                 "detailed_definition": prompt.get("detailed_definition", ""),
                 "level": prompt.get("level", "n/a")
             }
@@ -116,7 +116,7 @@ async def insert_contexts(contexts, owner):
             # Create a dictionary with the correct field names
             context_data = {
                 "owner_id": owner,  # Foreign key reference
-                "name": context.get("name", ""),
+                "context_name": context.get("context_name", ""),
                 "detailed_definition": context.get("detailed_definition", ""),
                 "level": context.get("level", "n/a")
             }

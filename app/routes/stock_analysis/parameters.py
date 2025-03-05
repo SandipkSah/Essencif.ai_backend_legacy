@@ -1,10 +1,8 @@
 from quart import Blueprint, jsonify, request
-from app.models.context import Context
-from app.models.prompt import Prompt
 from app.models.parameter import Parameter
-from app.models.user_right import UserRight  # Import the UserRight model
+from app.models.user_role import userRole  # Import the userRole model
 from app.models.applicationAdmins import ApplicationAdmins  # Import ApplicationAdmins model
-from app.models.user_group import UserGroup  # Import UserGroup model
+from app.models.solution_group import SolutionGroup  # Import SolutionGroup model
 
 parameters_blueprint = Blueprint('parameters', __name__)
 
@@ -23,11 +21,11 @@ async def get_parameters():
         if is_admin:
             # Provide access to all parameters with the role of admin
             parameters = await Parameter.all().values(
-                'id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
+                'parameter_id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
                 'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
             )
             parameter_data = [{
-                "id": param['id'],
+                "id": param['parameter_id'],
                 "owner": param['owner__name'],  # Get owner's name instead of ID
                 "parameterset": param['parameter_set'],
                 "engine": param['engine'],
@@ -42,22 +40,22 @@ async def get_parameters():
             } for param in parameters]
             return jsonify({"parameters": parameter_data})
         
-        user_groups = [EssencifAI_ID]
+        solution_groups = [EssencifAI_ID]
         if user_id:
-            user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
+            solution_groups += await userRole.filter(user_id=user_id).values_list("solution_group_id", flat=True)
         
-        print(f"User ID: {user_id}, User Groups: {user_groups}")
+        print(f"User ID: {user_id}, User Groups: {solution_groups}")
         
         # Fetch all parameters plus additional ones from user groups
-        parameters = await Parameter.filter(owner_id__in=user_groups).values(
-            'id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
+        parameters = await Parameter.filter(owner_id__in=solution_groups).values(
+            'parameter_id', 'parameter_set', 'engine', 'max_tokens', 'temperature', 'top_p', 'n',
             'stream', 'presence_penalty', 'frequency_penalty', 'username', 'owner_id', 'owner__name'
         )
         
         # print(f"Retrieved parameters: {parameters}")
         
         parameter_data = [{
-            "id": param['id'],
+            "id": param['parameter_id'],
             "owner": param['owner__name'],  # Get owner's name instead of ID
             "parameterset": param['parameter_set'],
             "engine": param['engine'],

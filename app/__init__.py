@@ -35,8 +35,8 @@ async def init_tortoise():
                 "app.models.prompt", 
                 "app.models.rating", 
                 "app.models.result",
-                "app.models.user_group",
-                "app.models.user_right",
+                "app.models.solution_group",
+                "app.models.user_role",
                 "app.models.user",
                 "app.models.user_question_history", 
                 ]

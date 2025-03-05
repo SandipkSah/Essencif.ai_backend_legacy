@@ -1,8 +1,8 @@
 from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Context(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="contexts")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="contexts")
     context_name = fields.CharField(max_length=255, pk=True)
     context = fields.TextField()
 
@@ -10,7 +10,7 @@ class Context(models.Model):
         table = "context"
 
 class Document(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="documents")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="documents")
     filename = fields.CharField(max_length=500, pk=True)
     file = fields.CharField(max_length=1000)
 
@@ -20,7 +20,7 @@ class Document(models.Model):
 class Implementation(models.Model):
     implementation_id = fields.IntField(pk=True)
     implementation = fields.CharField(max_length=255, unique=True)
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="implementations")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="implementations")
     colour_1 = fields.CharField(max_length=50)
     colour_2 = fields.CharField(max_length=50)
     colour_3 = fields.CharField(max_length=50)
@@ -33,7 +33,7 @@ class Implementation(models.Model):
         table = "implementations"
 
 class Parameter(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="parameters")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="parameters")
     parameter_set = fields.CharField(max_length=500, pk=True)
     engine = fields.CharField(max_length=50)
     max_tokens = fields.IntField()
@@ -49,7 +49,7 @@ class Parameter(models.Model):
         table = "parameter"
 
 class Prompt(models.Model):
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="prompts")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="prompts")
     prompt_name = fields.CharField(max_length=255, pk=True)
     prompt = fields.TextField()
 
@@ -58,7 +58,7 @@ class Prompt(models.Model):
 
 class Result(models.Model):
     id_llm = fields.IntField(pk=True)
-    owner = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="results")
+    owner = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="results")
     filename = fields.ForeignKeyField("models.Document", to_field="filename", related_name="results")
     context_name = fields.ForeignKeyField("models.Context", to_field="context_name", related_name="results")
     prompt_name = fields.ForeignKeyField("models.Prompt", to_field="prompt_name", related_name="results")
@@ -79,22 +79,22 @@ class Result(models.Model):
     class Meta:
         table = "results"
 
-class UserGroup(models.Model):
-    user_group_id = fields.IntField(pk=True)
+class SolutionGroup(models.Model):
+    solution_group_id = fields.IntField(pk=True)
     group_name = fields.CharField(max_length=255, unique=True)
-    admin = fields.ForeignKeyField("models.User", related_name="user_groups")
+    admin = fields.ForeignKeyField("models.User", related_name="solution_groups")
 
     class Meta:
-        table = "user_groups"
+        table = "solution_groups"
 
-class UserRights(models.Model):
-    user = fields.ForeignKeyField("models.User", related_name="user_rights")
-    user_group_name = fields.ForeignKeyField("models.UserGroup", to_field="group_name", related_name="user_rights") 
+class userRoles(models.Model):
+    user = fields.ForeignKeyField("models.User", related_name="user_roles")
+    solution_group_name = fields.ForeignKeyField("models.SolutionGroup", to_field="group_name", related_name="user_roles") 
     admin_role = fields.BooleanField()
     member_role = fields.BooleanField()
 
     class Meta:
-        table = "user_rights"
+        table = "user_roles"
 
 class User(models.Model):
     user_id = fields.IntField(pk=True)

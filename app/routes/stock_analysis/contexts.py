@@ -2,9 +2,9 @@ from quart import Blueprint, jsonify, request
 from app.models.context import Context
 from app.models.prompt import Prompt
 from app.models.parameter import Parameter
-from app.models.user_right import UserRight  # Import the UserRight model
+from app.models.user_role import userRole  # Import the userRole model
 from app.models.applicationAdmins import ApplicationAdmins  # Import ApplicationAdmins model
-from app.models.user_group import UserGroup  # Import UserGroup model
+from app.models.solution_group import SolutionGroup  # Import SolutionGroup model
 
 contexts_blueprint = Blueprint('contexts', __name__)
 
@@ -22,25 +22,25 @@ async def get_contexts():
             # Provide access to all contexts with the role of admin
             contexts = await Context.all().prefetch_related('owner')
             context_data = [{
-                "id": context.id,
+                "id": context.context_id,
                 "owner": context.owner.name,  # Get owner's name instead of ID
-                "contextname": context.name,
+                "contextname": context.context_name,
                 "context": context.detailed_definition
             } for context in contexts]
             return jsonify({"contexts": context_data})
         
         # All users should have access to EssencifAI_ID contexts, plus additional ones if they belong to user groups
-        user_groups = [EssencifAI_ID]
+        solution_groups = [EssencifAI_ID]
         if user_id:
-            user_groups += await UserRight.filter(user_id=user_id).values_list("user_group_id", flat=True)
+            solution_groups += await userRole.filter(user_id=user_id).values_list("solution_group_id", flat=True)
         
         # Fetch all contexts plus additional ones from user groups
-        contexts = await Context.filter(owner_id__in=user_groups).prefetch_related('owner')
+        contexts = await Context.filter(owner_id__in=solution_groups).prefetch_related('owner')
         
         context_data = [{
-            "id": context.id,
+            "id": context.context_id,
             "owner": context.owner.name,  # Get owner's name instead of ID
-            "contextname": context.name,
+            "contextname": context.context_name,
             "context": context.detailed_definition
         } for context in contexts]
         

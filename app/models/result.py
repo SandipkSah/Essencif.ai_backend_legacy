@@ -3,11 +3,11 @@ from .document import Document
 from .context import Context
 from .prompt import Prompt
 from .parameter import Parameter
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Result(models.Model):
     id_llm = fields.IntField(pk=True)
-    owner = fields.ForeignKeyField("models.UserGroup", related_name="result", source_field="owner")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="result", source_field="owner")
     document_id = fields.ForeignKeyField("models.Document", related_name="result", source_field="document_id")
     context_id = fields.ForeignKeyField("models.Context", related_name="result",source_field="context_id")
     prompt_id = fields.ForeignKeyField("models.Prompt", related_name="result", source_field="prompt_id")

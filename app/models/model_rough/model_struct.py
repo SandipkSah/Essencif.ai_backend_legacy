@@ -15,7 +15,7 @@ class ApplicationAdmins(Model):
 
 class Prompt(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="context")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="context")
     name = fields.CharField(max_length=255, unique=True)
     detailed_definition = fields.TextField()
     level = fields.CharField(max_length=255)
@@ -42,11 +42,11 @@ class DimObject(models.Model):
         table = "dim_object"
 
 from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Document(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="document")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="document")
     filename = fields.CharField(max_length=500, unique=True)
     file = fields.CharField(max_length=1000)
     level = fields.CharField(max_length=255)
@@ -65,12 +65,12 @@ class Fact(models.Model):
         table = "fact"
 
 from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Implementation(models.Model):
     implementation_id = fields.IntField(pk=True)
     implementation = fields.CharField(max_length=255, unique=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="implementation")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="implementation")
     colour_1 = fields.CharField(max_length=50)
     colour_2 = fields.CharField(max_length=50)
     colour_3 = fields.CharField(max_length=50)
@@ -83,11 +83,11 @@ class Implementation(models.Model):
         table = "implementation"
 
 from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Parameter(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="parameter")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="parameter")
     parameter_set = fields.CharField(max_length=500)
     engine = fields.CharField(max_length=50)
     max_tokens = fields.IntField()
@@ -117,11 +117,11 @@ class UserPoints(Model):
     def __repr__(self):
         return f"<UserPoints(user_id={self.user_id}, points={self.points})>"
 from tortoise import fields, models
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Prompt(models.Model):
     id = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="prompt")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="prompt")
     name = fields.CharField(max_length=255, unique=True)
     detailed_definition = fields.TextField()
     level = fields.CharField(max_length=255)
@@ -136,25 +136,25 @@ class Rating(Model):
     '''
     class Meta:
         table = "rating"
-        unique_together = (("user_id", "qdrant_id"),)
+        unique_together = (("user_id", "link_id"),)
     
     user_id = fields.CharField(max_length=255)
-    qdrant_id = fields.CharField(max_length=255) 
+    link_id = fields.CharField(max_length=255) 
     rating = fields.FloatField()
 
     def __repr__(self):
-        return f"<Rating(user_id={self.user_id}, qdrant_id={self.qdrant_id}, rating={self.rating})>"
+        return f"<Rating(user_id={self.user_id}, link_id={self.link_id}, rating={self.rating})>"
 
 from tortoise import fields, models
 from .document import Document
 from .context import Context
 from .prompt import Prompt
 from .parameter import Parameter
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
 class Result(models.Model):
     id_llm = fields.IntField(pk=True)
-    owner_id = fields.ForeignKeyField("models.UserGroup", related_name="result")
+    owner_id = fields.ForeignKeyField("models.SolutionGroup", related_name="result")
     document_id = fields.ForeignKeyField("models.Document", related_name="result")
     context_id = fields.ForeignKeyField("models.Context", related_name="result")
     prompt_id = fields.ForeignKeyField("models.Prompt", related_name="result")
@@ -191,12 +191,12 @@ class User(models.Model):
 from tortoise import fields, models
 from .user import User
 
-class UserGroup(models.Model):
+class SolutionGroup(models.Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=255)
-    admin = fields.ForeignKeyField("models.User", related_name="user_group")
+    admin = fields.ForeignKeyField("models.User", related_name="solution_group")
     class Meta:
-        table = "user_group"
+        table = "solution_group"
 
 from tortoise import fields
 from tortoise.models import Model
@@ -217,15 +217,15 @@ class UserQuestion(Model):
     created_at = fields.DatetimeField(auto_now_add=True)
 from tortoise import fields, models
 from .user import User
-from .user_group import UserGroup
+from .solution_group import SolutionGroup
 
-class UserRights(models.Model):
+class userRoles(models.Model):
     id = fields.IntField(pk=True)
-    user = fields.ForeignKeyField("models.User", related_name="user_rights")
-    user_group = fields.ForeignKeyField("models.UserGroup", related_name="user_rights") 
+    user = fields.ForeignKeyField("models.User", related_name="user_roles")
+    solution_group = fields.ForeignKeyField("models.SolutionGroup", related_name="user_roles") 
     role = fields.CharField(max_length=255)
     
 
     class Meta:
-        table = "user_rights"
+        table = "user_roles"
 
