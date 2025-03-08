@@ -19,7 +19,7 @@ async def get_user_roles():
     if is_admin:
         # Provide access to all projects with the role of admin
         solution_groups = await SolutionGroup.all()
-        rights_data = [{"project": ug.name, "role": "admin", "project_id": ug.id} for ug in solution_groups]
+        rights_data = [{"project": ug.name, "role": "admin", "project_id": ug.solution_group_id} for ug in solution_groups]
         return jsonify(rights_data), 200
 
     user_roles = []
@@ -29,7 +29,7 @@ async def get_user_roles():
         db_user_roles = await userRole.filter(user_id=user_id).prefetch_related('solution_group')
         if db_user_roles:
             solution_groups += [ur.solution_group.id for ur in db_user_roles]
-            user_roles = [{"project": ur.solution_group.name, "role": ur.role, "project_id": ur.solution_group.id} for ur in db_user_roles]
+            user_roles = [{"project": ur.solution_group.name, "role": ur.role, "project_id": ur.solution_group.solution_group_id} for ur in db_user_roles]
 
         # Check if there is a user right for "Essencif.AI"
         if not any(right["project"] == "Essencif.AI" for right in user_roles):

@@ -1,5 +1,7 @@
 trigger:
-- containerization
+- main
+- stage
+
 
 
 variables:
@@ -39,7 +41,7 @@ stages:
 - stage: DeployTesting
   displayName: 'Deploy Testing'
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/containerization'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-test'
     AZURE_COMPILATION_ENV: 'testing'
@@ -68,7 +70,7 @@ stages:
 - stage: DeployDevelopment
   displayName: 'Deploy Development'
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/containerization'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
@@ -97,7 +99,7 @@ stages:
 - stage: DeployProduction
   displayName: 'Deploy Production'
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/containerization'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-prod'
     AZURE_COMPILATION_ENV: 'production'

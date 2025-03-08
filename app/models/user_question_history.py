@@ -13,7 +13,7 @@ class UserQuestion(Model):
     
     user_question_id = fields.IntField(pk=True) 
     user_id = fields.CharField(max_length=255)
-    document_id = fields.ForeignKeyField("models.Document", related_name="user_question_history", source_field="document_id")
+    # document_id = fields.ForeignKeyField("models.Document", related_name="user_question_history", source_field="document_id")
     question = fields.TextField()  
     response = fields.JSONField(null=True)
     created_at = fields.DatetimeField(auto_now_add=True)
