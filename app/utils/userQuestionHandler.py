@@ -1,4 +1,4 @@
-from app.ormModels.user_question_history import UserQuestion
+from app.models.user_question_history import UserQuestion
 
 
 async def add_requested_question(user_id: str, question: str, response: object):

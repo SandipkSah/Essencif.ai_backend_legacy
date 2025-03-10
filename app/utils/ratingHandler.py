@@ -1,4 +1,4 @@
-from app.ormModels.rating import Rating
+from app.models.rating import Rating
 from app.utils.pointHandler import grant_points
 
 
@@ -15,7 +15,7 @@ Returns:
 """
 async def saveRating(user_id: str, document_id: str, rating: float):
     try:
-        existing_rating = await Rating.filter(user_id=user_id, qdrant_id=document_id).first()
+        existing_rating = await Rating.filter(user_id=user_id, link_id=document_id).first()
 
         if existing_rating:
             existing_rating.rating = rating
@@ -24,14 +24,14 @@ async def saveRating(user_id: str, document_id: str, rating: float):
                 "type": "update",
                 "rating": {
                     "user_id": existing_rating.user_id,
-                    "qdrant_id": existing_rating.qdrant_id,
+                    "link_id": existing_rating.link_id,
                     "rating": existing_rating.rating
                 }
             }
         else:
             rating_instance = await Rating.create(
                 user_id=user_id,
-                qdrant_id=document_id,
+                link_id=document_id,
                 rating=rating
             )
             await grant_points(user_id, 10)
@@ -39,7 +39,7 @@ async def saveRating(user_id: str, document_id: str, rating: float):
                 "type": "created",
                 "rating": {
                     "user_id": rating_instance.user_id,
-                    "qdrant_id": rating_instance.qdrant_id,
+                    "link_id": rating_instance.link_id,
                     "rating": rating_instance.rating
                 }
             }
@@ -65,7 +65,7 @@ async def getUserRatings(user_id: str):
         ratings_data = [
             {
                 "user_id": rating.user_id,
-                "qdrant_id": rating.qdrant_id,
+                "link_id": rating.link_id,
                 "rating": rating.rating
             }
             for rating in ratings
@@ -78,14 +78,14 @@ async def getUserRatings(user_id: str):
 Gets the overall rating of a document based on all user ratings
     
 Args:
-    qdrant_id (str): The ID of the document
+    link_id (str): The ID of the document
     
 Returns:
    The float value rounded to two decimals for the document or undefined if no ratings exist
 """
-async def getDocumentRating(qdrant_id: str):
+async def getDocumentRating(link_id: str):
     try:
-        ratings = await Rating.filter(qdrant_id=qdrant_id).all()
+        ratings = await Rating.filter(link_id=link_id).all()
         # No Ratings available
         if not ratings:
             return None

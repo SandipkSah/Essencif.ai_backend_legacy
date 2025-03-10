@@ -1,0 +1,142 @@
+Table users {
+    user_id VARCHAR(255) [primary key]
+    email VARCHAR(255) [unique]
+    given_name VARCHAR(255)
+    surname VARCHAR(255)
+    company VARCHAR(255)
+    position VARCHAR(255)
+}
+
+Table application_admin{
+  user_id INT [primary key]
+}
+
+Table solution_group {
+    id INT [primary key]
+    name VARCHAR(255) 
+    admin INT
+}
+
+Table user_role {
+    id INT [primary key]
+    user_id INT
+    solution_group VARCHAR(255)
+    role varchar(255)
+}
+
+
+
+Table document {
+    id INT [primary key]
+    owner_id VARCHAR(255)
+    filename VARCHAR(500) [primary key]
+    file VARCHAR(1000)
+    level VARCHAR(255)
+}
+
+
+Table context {
+    id INT [primary key]
+    owner_id VARCHAR(255)
+    name VARCHAR(255) 
+    detailed_definition TEXT
+    level VARCHAR(255)
+}
+
+Table prompt {
+    id INT [primary key]
+    owner_id VARCHAR(255)
+    name VARCHAR(255) [primary key]
+    detailed_definition TEXT
+    level VARCHAR(255)
+}
+
+
+Table parameter {
+    id INT [primary key]
+    owner_id VARCHAR(255)
+    parameter_set VARCHAR(500) 
+    engine VARCHAR(50)
+    max_tokens INT
+    temperature FLOAT
+    top_p FLOAT
+    n INT
+    stream BIT
+    presence_penalty FLOAT
+    frequency_penalty FLOAT
+    username VARCHAR(255)
+    level VARCHAR(255)
+}
+
+Table implementation {
+    implementation_id INT [primary key]
+    implementation VARCHAR(255) [unique]
+    owner_id INT
+    colour_1 VARCHAR(50)
+    colour_2 VARCHAR(50)
+    colour_3 VARCHAR(50)
+    colour_4 VARCHAR(50)
+    colour_5 VARCHAR(50)
+    colour_6 VARCHAR(50)
+    colour_7 VARCHAR(50)
+}
+
+Table result {
+    id_llm INT [primary key]
+    owner_id VARCHAR(255)
+    document_id VARCHAR(500)
+    context_id VARCHAR(255)
+    prompt_id VARCHAR(255)
+    parameter_id VARCHAR(500)
+    file VARCHAR(1000)
+    engine VARCHAR(50)
+    context TEXT
+    prompt TEXT
+    max_tokens INT
+    temperature FLOAT
+    top_p FLOAT
+    n INT
+    stream BIT
+    presence_penalty FLOAT
+    frequency_penalty FLOAT
+    result TEXT
+}
+
+
+
+Table dim_fact {
+    factor_id INT [primary key]
+    factor_name VARCHAR(255)
+    source VARCHAR(255)
+    description TEXT
+}
+
+Table dim_object {
+    object_id INT [primary key]
+}
+
+Table fact {
+    object_id INT
+    factor_id INT
+    date DATE
+    value FLOAT
+}
+
+// -- Relationships
+Ref: users.user_id < application_admin.user_id
+Ref: users.user_id < user_role.user_id
+Ref: users.user_id < solution_group.admin
+Ref: solution_group.id < user_role.solution_group
+Ref: solution_group.id < implementation.owner_id
+Ref: solution_group.id < result.owner_id
+Ref: solution_group.id < document.owner_id
+Ref: document.id < result.document_id
+Ref: context.id < result.context_id
+Ref: prompt.id < result.prompt_id
+Ref: parameter.parameter_set < result.parameter_id
+Ref: solution_group.id < context.owner_id
+Ref: solution_group.id < prompt.owner_id
+Ref: solution_group.id < parameter.owner_id
+
+
+
