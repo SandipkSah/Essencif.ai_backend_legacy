@@ -10,6 +10,9 @@ async def get_user_points():
     """
     user_id = request.args.get('user_id')
 
+    if not user_id:
+        return jsonify({"error": "userID is required"}), 400
+
     try:
         points = await get_points(user_id)
         customier_tier = get_customer_tier(points)
