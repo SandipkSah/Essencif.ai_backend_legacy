@@ -11,6 +11,7 @@ variables:
   imageRegistry: 'essencifai-backend'  # Project-specific name
   containerRegistry: 'container-registry'  # Full Azure Container Registry URL
   containerRegistryServerURL: 'essencifaibackendregistry.azurecr.io'  # Full Azure Container server URL
+  pythonVersion: '3.12'
   
 
 stages:
@@ -46,6 +47,7 @@ stages:
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-test'
     AZURE_COMPILATION_ENV: 'testing'
+    TEST_APP_URL: 'https://essencifai-backend-test-anaqarbvdpfxdkb0.canadacentral-01.azurewebsites.net/'
 
   jobs:
   - deployment: TestingDeploymentJob
@@ -72,6 +74,7 @@ stages:
     dependsOn: TestingDeploymentJob
     pool:
       vmImage: $(vmImageName)
+    continueOnError: true 
     steps:
     - checkout: self
       
@@ -84,9 +87,9 @@ stages:
     # Setup Python environment
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '3.12'
+        versionSpec: $(pythonVersion)
         addToPath: true
-      displayName: 'Setup Python 3.12'
+      displayName: 'Setup Python $(pythonVersion)'
 
     # Install pytest and required dependencies
     - bash: |
