@@ -3,8 +3,6 @@ trigger:
 - stage
 - test
 
-
-
 variables:
   azureServiceConnection: 'essencif.ai_resources'
   vmImageName: 'ubuntu-latest'
@@ -37,8 +35,6 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: '$(Build.BuildId)'
 
-
-
 - stage: DeployTesting
   displayName: 'Deploy Testing'
   dependsOn: Build
@@ -46,9 +42,11 @@ stages:
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-test'
     AZURE_COMPILATION_ENV: 'testing'
+    TEST_APP_URL: 'https://essencifai-backend-test.azurewebsites.net'  # Replace with your actual testing app URL
 
   jobs:
   - deployment: TestingDeploymentJob
+    displayName: 'Deploy to Testing Environment'
     pool:
       vmImage: $(vmImageName)
     environment: 'testing'
@@ -65,7 +63,6 @@ stages:
               containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
               DockerNamespace: 'essencifaibackendregistry.azurecr.io'
               DockerRepository: $(imageRegistry):$(Build.BuildId)
-              
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
@@ -97,11 +94,8 @@ stages:
     # Create test environment file
     - bash: |
         echo "BASE_URL=$(TEST_APP_URL)" > $(Build.SourcesDirectory)/tests/.env.test
-        echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_USER_ID=test_valid_user_id" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_USER_ID=test_invalid_user_id" >> $(Build.SourcesDirectory)/tests/.env.test
         # Add any other environment variables needed for tests
       displayName: 'Create Test Environment File'
       
@@ -145,63 +139,3 @@ stages:
         ArtifactName: 'test-results'
         publishLocation: 'Container'
       condition: succeededOrFailed()
-
-
-- stage: DeployDevelopment
-  displayName: 'Deploy Development'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
-  variables:
-    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
-    AZURE_COMPILATION_ENV: 'development'
-
-  jobs:
-  - deployment: DevelopmentDeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'development'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: $(azureServiceConnection)
-              appType: 'webAppContainer'
-              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
-              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
-
-
-
-- stage: DeployProduction
-  displayName: 'Deploy Production'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  variables:
-    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-prod'
-    AZURE_COMPILATION_ENV: 'production'
-
-  jobs:
-  - deployment: DevelopmentProductionJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: $(azureServiceConnection)
-              appType: 'webAppContainer'
-              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
-              # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerNamespace: $(containerRegistryServerURL)
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
-
-

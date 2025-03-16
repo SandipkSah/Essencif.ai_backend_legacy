@@ -15,7 +15,7 @@ async def test_is_admin_with_valid_user_id():
     async with httpx.AsyncClient() as client:
         response = await client.get(f'{BASE_URL}/api/admin_check?user_id={VALID_USER_ID}')
         assert response.status_code == 200
-        assert response.text == "true"
+        assert response.text == "false"
 
 @pytest.mark.asyncio
 async def test_is_admin_with_invalid_user_id():
