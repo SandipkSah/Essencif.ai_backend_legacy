@@ -60,9 +60,9 @@ stages:
         last_tag=$(git describe --tags --abbrev=0)
         commit_number=$(git rev-list $last_tag..HEAD --count)
 
-        if [[ "$branch_name" == "main" ]]; then
+        if [[ "$branch_name" == "master" ]]; then
             version_suffix=""  # Stable release (e.g., v1.0.0)
-        elif [[ "$branch_name" == "develop" ]]; then
+        elif [[ "$branch_name" == "dev" ]]; then
             version_suffix="-dev.${commit_number}"  # Development build
         else
             version_suffix="-rc.${commit_number}"  # Release candidate
