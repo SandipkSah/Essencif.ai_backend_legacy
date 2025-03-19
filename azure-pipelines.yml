@@ -98,9 +98,9 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(VERSION_TAG)
+              containers: $(containerRegistryServerURL)/$(imageRegistry):$(VERSION_TAG)
+              # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+              # DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
 - stage: DeployStaging
   displayName: 'Deploy Staging'
