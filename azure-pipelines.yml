@@ -1,6 +1,8 @@
 trigger:
 - master
 - stage
+- staging
+- dev
 
 
 
@@ -70,7 +72,7 @@ stages:
 - stage: DeployDevelopment
   displayName: 'Deploy Development'
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/stage'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
@@ -94,6 +96,32 @@ stages:
               DockerNamespace: 'essencifaibackendregistry.azurecr.io'
               DockerRepository: $(imageRegistry):$(Build.BuildId)
 
+- stage: DeployStaging
+  displayName: 'Deploy Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/staging'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-staging'
+    AZURE_COMPILATION_ENV: 'staging'
+
+  jobs:
+  - deployment: DevelopmentDeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: $(azureServiceConnection)
+              appType: 'webAppContainer'
+              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
+              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+              DockerRepository: $(imageRegistry):$(Build.BuildId)
 
 
 - stage: DeployProduction
