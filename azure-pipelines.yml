@@ -55,19 +55,10 @@ stages:
         echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
         echo "##vso[task.setvariable variable=VERSION_TAG;isOutput=true]$new_version"
         echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]this is from job A"
-      name: passOutput 
+
+      name: SetVersionTag 
       displayName: "Generate Version Tag"
 
-    # - bash: |
-    #     echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]this is from job A"
-    #   name: passOutput
-
-    # - script: |
-        
-    #   name: SetVersionTag  # This name is important for referencing outputs later
-    #   displayName: "Generate Version Tag"
-    
-    
     - script: |
         echo "VERSION_TAG: $(VERSION_TAG)"
       displayName: "Verify VERSION_TAG"
@@ -100,7 +91,7 @@ stages:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
     VERSION_TAG: $[ dependencies.BuildDockerImage.outputs['SetVersionTag.VERSION_TAG'] ]
-    myVarFromJobA: $[ dependencies.BuildDockerImage.outputs['passOutput.myOutputVar'] ]  
+    myVarFromJobA: $[ dependencies.BuildDockerImage.outputs['SetVersionTag.myOutputVar'] ]  
 
 
   jobs:
@@ -113,7 +104,7 @@ stages:
         deploy:
           steps:
           - script: |
-              echo Deploying version: $(VERSION_TAG) $(myVarFromJobA) 
+              echo Deploying version: $(VERSION_TAG)
             displayName: "Verify VERSION_TAG before deployment"
 
           - task: AzureRmWebAppDeployment@4
