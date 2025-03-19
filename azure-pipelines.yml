@@ -115,7 +115,7 @@ stages:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
     VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
-    deps: $$[convertToJson(stageDependencies)]
+    deps: $[convertToJson(stageDependencies)]
 
   jobs:
   - job: printVariable
@@ -124,7 +124,7 @@ stages:
     - powershell: Write-Host "$(deps)"
     - script: |
         echo this is versiontag: $(VERSION_TAG)
-        echo what is $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
+        echo this what $(deps)
       name: setVersionTag
       displayName: "Generate Version Tag"
     
