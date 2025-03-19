@@ -54,6 +54,11 @@ stages:
 
         echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
       displayName: "Generate Version Tag"
+      
+    - script: |
+        echo "##vso[task.setvariable variable=VERSION_TAG;isOutput=true]$new_version"
+      name: SetVersionTag  # This name is important for referencing outputs later
+      displayName: "Generate Version Tag"
     
     
     - script: |
