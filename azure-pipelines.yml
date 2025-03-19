@@ -208,7 +208,7 @@ stages:
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
-    dependsOn: TestingDeploymentJob
+    dependsOn: DevelopmentStagingJob
     pool:
       vmImage: $(vmImageName)
     continueOnError: true 
