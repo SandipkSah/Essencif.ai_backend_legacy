@@ -27,40 +27,11 @@ stages:
     - checkout: self
       persistCredentials: true  # Allows fetching Git tags
       fetchDepth: 0
-
-    # Get the latest Git tag and count commits
-    # - bash: |
-    #     latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
-    #     commit_count=$(git rev-list ${latest_tag}..HEAD --count)
-    #     new_version="${latest_tag}-rc.${commit_count}"
-    #     echo "Latest tag: $latest_tag"
-    #     echo "Commit count since last tag: $commit_count"
-    #     echo "Generated version: $new_version"
-    #     echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
-    #   displayName: "--unclear"
-
-    # - bash: |
-    #     # Get the latest tag (fallback to v1.0.0 if none exist)
-    #     latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
-
-    #     # Count commits since last tag
-    #     commit_count=$(git rev-list ${latest_tag}..HEAD --count)
-
-    #     # If no new commits, use the latest tag, otherwise, create an RC version
-    #     if [ "$commit_count" -eq "0" ]; then
-    #       new_version="$latest_tag"
-    #     else
-    #       new_version="${latest_tag}-rc.${commit_count}"
-    #     fi
-
-
     - script: |
         branch_name=$(git rev-parse --abbrev-ref HEAD)
-        echo "======"
+
         echo "$(git describe --tags --abbrev=0)"
-        echo "$(git describe --tags)"
-        echo "====="
-        last_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+        last_tag=$(git describe --tags --abbrev=0 )
         commit_number=$(git rev-list $last_tag..HEAD --count)
 
         if [[ "$branch_name" == "master" ]]; then
@@ -104,8 +75,6 @@ stages:
 
 
 
-
-
 - stage: DeployDevelopment
   displayName: 'Deploy Development'
   dependsOn: Build
@@ -143,6 +112,10 @@ stages:
     BASE_URL: 'https://essencifai-backend-staging-adefg0c3cjf5eged.canadacentral-01.azurewebsites.net/'
 
   jobs:
+  - script: |
+      echo " VERSION_TAG: $(VERSION_TAG)"
+    displayName: "Check VERSION_TAG before deployment"
+
   - deployment: DevelopmentStagingJob
     pool:
       vmImage: $(vmImageName)
@@ -157,9 +130,9 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(VERSION_TAG)
+              containers: $(containerRegistryServerURL)/$(imageRegistry):$(VERSION_TAG)
+              # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+              # DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
