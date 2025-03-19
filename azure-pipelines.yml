@@ -83,9 +83,40 @@ stages:
 
 
 
-
-
 - stage: DeployDevelopment
+  displayName: 'Deploy Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
+    AZURE_COMPILATION_ENV: 'development'
+    VERSION_TAG: $[ dependencies.Build.outputs['BuildDockerImage.SetVersionTag.VERSION_TAG'] ]
+
+  jobs:
+  - deployment: DevelopmentDeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              echo "Deploying version: $(VERSION_TAG)"
+              # Add additional debugging here
+            displayName: "Verify VERSION_TAG before deployment"
+
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: $(azureServiceConnection)
+              appType: 'webAppContainer'
+              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              containers: $(containerRegistryServerURL)/$(imageRegistry):$(VERSION_TAG)
+              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+
+
+# - stage: DeployDevelopment
   displayName: 'Deploy Development'
   dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
