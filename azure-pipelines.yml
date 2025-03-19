@@ -79,334 +79,334 @@ stages:
 
 
 
-# - stage: DeployDevelopment
-#   displayName: 'Deploy Development'
-#   dependsOn: Build
-#   condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'dev'))
-#   variables:
-#     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
-#     AZURE_COMPILATION_ENV: 'development'
-#     BASE_URL: 'https://essencifai-backend-dev-a8h6ezbygecnc4cj.canadacentral-01.azurewebsites.net/'
-#     VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
+- stage: DeployDevelopment
+  displayName: 'Deploy Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'dev'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
+    AZURE_COMPILATION_ENV: 'development'
+    BASE_URL: 'https://essencifai-backend-dev-a8h6ezbygecnc4cj.canadacentral-01.azurewebsites.net/'
+    VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
   
 
-#   jobs:
-#   - deployment: DevelopmentDeploymentJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     environment: 'development'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - task: AzureRmWebAppDeployment@4
-#             inputs:
-#               ConnectionType: 'AzureRM'
-#               azureSubscription: $(azureServiceConnection)
-#               appType: 'webAppContainer'
-#               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-#               containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-#               DockerNamespace: $(containerRegistryServerURL)
-#               DockerRepository: $(imageRegistry):$(VERSION_TAG)
+  jobs:
+  - deployment: DevelopmentDeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: $(azureServiceConnection)
+              appType: 'webAppContainer'
+              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
+              DockerNamespace: $(containerRegistryServerURL)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
-#   - job: RunPostDeploymentTests
-#     displayName: 'Run Post-Deployment Tests'
-#     dependsOn: DevelopmentDeploymentJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     continueOnError: true 
-#     steps:
-#     - checkout: self
+  - job: RunPostDeploymentTests
+    displayName: 'Run Post-Deployment Tests'
+    dependsOn: DevelopmentDeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+    continueOnError: true 
+    steps:
+    - checkout: self
       
-#     # Add a delay to ensure the app is fully ready
-#     - bash: |
-#         echo "Waiting for application to be fully deployed..."
-#         sleep 60
-#       displayName: 'Wait for App to Stabilize'
+    # Add a delay to ensure the app is fully ready
+    - bash: |
+        echo "Waiting for application to be fully deployed..."
+        sleep 60
+      displayName: 'Wait for App to Stabilize'
 
-#     # Setup Python environment
-#     - task: UsePythonVersion@0
-#       inputs:
-#         versionSpec: $(pythonVersion)
-#         addToPath: true
-#       displayName: 'Setup Python $(pythonVersion)'
+    # Setup Python environment
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: $(pythonVersion)
+        addToPath: true
+      displayName: 'Setup Python $(pythonVersion)'
 
-#     # Install pytest and required dependencies
-#     - bash: |
-#         python -m pip install --upgrade pip
-#         pip install pytest pytest-asyncio httpx python-dotenv
-#       displayName: 'Install Test Dependencies'
+    # Install pytest and required dependencies
+    - bash: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio httpx python-dotenv
+      displayName: 'Install Test Dependencies'
 
-#     # Create test environment file
-#     - bash: |
-#         echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
-#         # Add any other environment variables needed for tests
-#       displayName: 'Create Test Environment File'
+    # Create test environment file
+    - bash: |
+        echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
+        # Add any other environment variables needed for tests
+      displayName: 'Create Test Environment File'
       
-#     # Run the tests using script.sh
-#     - bash: |
-#         chmod +x $(Build.SourcesDirectory)/tests/script.sh
-#         cd $(Build.SourcesDirectory)/tests
-#         ./script.sh
-#       displayName: 'Run Tests using script.sh'
+    # Run the tests using script.sh
+    - bash: |
+        chmod +x $(Build.SourcesDirectory)/tests/script.sh
+        cd $(Build.SourcesDirectory)/tests
+        ./script.sh
+      displayName: 'Run Tests using script.sh'
       
-#     # Alternatively, run pytest directly if needed
-#     - bash: |
-#         cd $(Build.SourcesDirectory)/tests
-#         python -m pytest routes -v --junitxml=test-results.xml
-#       displayName: 'Run Tests with pytest'
-#       condition: always()  # Run even if the script.sh execution fails
+    # Alternatively, run pytest directly if needed
+    - bash: |
+        cd $(Build.SourcesDirectory)/tests
+        python -m pytest routes -v --junitxml=test-results.xml
+      displayName: 'Run Tests with pytest'
+      condition: always()  # Run even if the script.sh execution fails
     
-#     # Publish test results
-#     - task: PublishTestResults@2
-#       displayName: 'Publish Test Results'
-#       inputs:
-#         testResultsFormat: 'JUnit'
-#         testResultsFiles: '**/test-results.xml'
-#         mergeTestResults: true
-#         testRunTitle: 'Post Deployment Tests'
-#       condition: succeededOrFailed()
+    # Publish test results
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        mergeTestResults: true
+        testRunTitle: 'Post Deployment Tests'
+      condition: succeededOrFailed()
       
-#     # Archive test results
-#     - task: CopyFiles@2
-#       displayName: 'Copy Test Results'
-#       inputs:
-#         SourceFolder: '$(Build.SourcesDirectory)/tests/results'
-#         Contents: '**'
-#         TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
-#       condition: succeededOrFailed()
+    # Archive test results
+    - task: CopyFiles@2
+      displayName: 'Copy Test Results'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/tests/results'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
+      condition: succeededOrFailed()
       
-#     - task: PublishBuildArtifacts@1
-#       displayName: 'Publish Test Results Artifact'
-#       inputs:
-#         PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
-#         ArtifactName: 'test-results'
-#         publishLocation: 'Container'
-#       condition: succeededOrFailed()
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Test Results Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
+        ArtifactName: 'test-results'
+        publishLocation: 'Container'
+      condition: succeededOrFailed()
 
 
-# - stage: DeployStaging
-#   displayName: 'Deploy Staging'
-#   dependsOn: Build
-#   condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'staging'))
-#   variables:
-#     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-staging'
-#     AZURE_COMPILATION_ENV: 'staging'
-#     BASE_URL: 'https://essencifai-backend-staging-adefg0c3cjf5eged.canadacentral-01.azurewebsites.net/'
-#     VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
+- stage: DeployStaging
+  displayName: 'Deploy Staging'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'staging'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-staging'
+    AZURE_COMPILATION_ENV: 'staging'
+    BASE_URL: 'https://essencifai-backend-staging-adefg0c3cjf5eged.canadacentral-01.azurewebsites.net/'
+    VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
 
-#   jobs:
-#   - deployment: DevelopmentStagingJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     environment: 'staging'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - task: AzureRmWebAppDeployment@4
-#             inputs:
-#               ConnectionType: 'AzureRM'
-#               azureSubscription: $(azureServiceConnection)
-#               appType: 'webAppContainer'
-#               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-#               containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-#               DockerNamespace: $(containerRegistryServerUR)
-#               DockerRepository: $(imageRegistry):$(VERSION_TAG)
+  jobs:
+  - deployment: DevelopmentStagingJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: $(azureServiceConnection)
+              appType: 'webAppContainer'
+              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
+              DockerNamespace: $(containerRegistryServerUR)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
-#   - job: RunPostDeploymentTests
-#     displayName: 'Run Post-Deployment Tests'
-#     dependsOn: DevelopmentStagingJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     continueOnError: true 
-#     steps:
-#     - checkout: self
+  - job: RunPostDeploymentTests
+    displayName: 'Run Post-Deployment Tests'
+    dependsOn: DevelopmentStagingJob
+    pool:
+      vmImage: $(vmImageName)
+    continueOnError: true 
+    steps:
+    - checkout: self
       
-#     # Add a delay to ensure the app is fully ready
-#     - bash: |
-#         echo "Waiting for application to be fully deployed..."
-#         sleep 60
-#       displayName: 'Wait for App to Stabilize'
+    # Add a delay to ensure the app is fully ready
+    - bash: |
+        echo "Waiting for application to be fully deployed..."
+        sleep 60
+      displayName: 'Wait for App to Stabilize'
 
-#     # Setup Python environment
-#     - task: UsePythonVersion@0
-#       inputs:
-#         versionSpec: $(pythonVersion)
-#         addToPath: true
-#       displayName: 'Setup Python $(pythonVersion)'
+    # Setup Python environment
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: $(pythonVersion)
+        addToPath: true
+      displayName: 'Setup Python $(pythonVersion)'
 
-#     # Install pytest and required dependencies
-#     - bash: |
-#         python -m pip install --upgrade pip
-#         pip install pytest pytest-asyncio httpx python-dotenv
-#       displayName: 'Install Test Dependencies'
+    # Install pytest and required dependencies
+    - bash: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio httpx python-dotenv
+      displayName: 'Install Test Dependencies'
 
-#     # Create test environment file
-#     - bash: |
-#         echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
-#         # Add any other environment variables needed for tests
-#       displayName: 'Create Test Environment File'
+    # Create test environment file
+    - bash: |
+        echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
+        # Add any other environment variables needed for tests
+      displayName: 'Create Test Environment File'
       
-#     # Run the tests using script.sh
-#     - bash: |
-#         chmod +x $(Build.SourcesDirectory)/tests/script.sh
-#         cd $(Build.SourcesDirectory)/tests
-#         ./script.sh
-#       displayName: 'Run Tests using script.sh'
+    # Run the tests using script.sh
+    - bash: |
+        chmod +x $(Build.SourcesDirectory)/tests/script.sh
+        cd $(Build.SourcesDirectory)/tests
+        ./script.sh
+      displayName: 'Run Tests using script.sh'
       
-#     # Alternatively, run pytest directly if needed
-#     - bash: |
-#         cd $(Build.SourcesDirectory)/tests
-#         python -m pytest routes -v --junitxml=test-results.xml
-#       displayName: 'Run Tests with pytest'
-#       condition: always()  # Run even if the script.sh execution fails
+    # Alternatively, run pytest directly if needed
+    - bash: |
+        cd $(Build.SourcesDirectory)/tests
+        python -m pytest routes -v --junitxml=test-results.xml
+      displayName: 'Run Tests with pytest'
+      condition: always()  # Run even if the script.sh execution fails
     
-#     # Publish test results
-#     - task: PublishTestResults@2
-#       displayName: 'Publish Test Results'
-#       inputs:
-#         testResultsFormat: 'JUnit'
-#         testResultsFiles: '**/test-results.xml'
-#         mergeTestResults: true
-#         testRunTitle: 'Post Deployment Tests'
-#       condition: succeededOrFailed()
+    # Publish test results
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        mergeTestResults: true
+        testRunTitle: 'Post Deployment Tests'
+      condition: succeededOrFailed()
       
-#     # Archive test results
-#     - task: CopyFiles@2
-#       displayName: 'Copy Test Results'
-#       inputs:
-#         SourceFolder: '$(Build.SourcesDirectory)/tests/results'
-#         Contents: '**'
-#         TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
-#       condition: succeededOrFailed()
+    # Archive test results
+    - task: CopyFiles@2
+      displayName: 'Copy Test Results'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/tests/results'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
+      condition: succeededOrFailed()
       
-#     - task: PublishBuildArtifacts@1
-#       displayName: 'Publish Test Results Artifact'
-#       inputs:
-#         PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
-#         ArtifactName: 'test-results'
-#         publishLocation: 'Container'
-#       condition: succeededOrFailed()
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Test Results Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
+        ArtifactName: 'test-results'
+        publishLocation: 'Container'
+      condition: succeededOrFailed()
 
 
-# - stage: DeployProduction
-#   displayName: 'Deploy Production'
-#   dependsOn: Build
-#   condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
-#   variables:
-#     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-prod'
-#     AZURE_COMPILATION_ENV: 'production'
-#     BASE_URL: 'https://essencifai-backend-prod-fnftfze8bpb0fpaa.canadacentral-01.azurewebsites.net/'
-#     VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
+- stage: DeployProduction
+  displayName: 'Deploy Production'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
+  variables:
+    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-prod'
+    AZURE_COMPILATION_ENV: 'production'
+    BASE_URL: 'https://essencifai-backend-prod-fnftfze8bpb0fpaa.canadacentral-01.azurewebsites.net/'
+    VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
 
-#   jobs:
-#   - deployment: DevelopmentProductionJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     environment: 'production'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - task: AzureRmWebAppDeployment@4
-#             inputs:
-#               ConnectionType: 'AzureRM'
-#               azureSubscription: $(azureServiceConnection)
-#               appType: 'webAppContainer'
-#               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-#               containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-#               DockerNamespace: $(containerRegistryServerURL)
-#               DockerRepository: $(imageRegistry):$(VERSION_TAG)
+  jobs:
+  - deployment: DevelopmentProductionJob
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: $(azureServiceConnection)
+              appType: 'webAppContainer'
+              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
+              DockerNamespace: $(containerRegistryServerURL)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
 
-#   - job: RunPostDeploymentTests
-#     displayName: 'Run Post-Deployment Tests'
-#     dependsOn: DevelopmentProductionJob
-#     pool:
-#       vmImage: $(vmImageName)
-#     continueOnError: true 
-#     steps:
-#     - checkout: self
+  - job: RunPostDeploymentTests
+    displayName: 'Run Post-Deployment Tests'
+    dependsOn: DevelopmentProductionJob
+    pool:
+      vmImage: $(vmImageName)
+    continueOnError: true 
+    steps:
+    - checkout: self
       
-#     # Add a delay to ensure the app is fully ready
-#     - bash: |
-#         echo "Waiting for application to be fully deployed..."
-#         sleep 60
-#       displayName: 'Wait for App to Stabilize'
+    # Add a delay to ensure the app is fully ready
+    - bash: |
+        echo "Waiting for application to be fully deployed..."
+        sleep 60
+      displayName: 'Wait for App to Stabilize'
 
-#     # Setup Python environment
-#     - task: UsePythonVersion@0
-#       inputs:
-#         versionSpec: $(pythonVersion)
-#         addToPath: true
-#       displayName: 'Setup Python $(pythonVersion)'
+    # Setup Python environment
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: $(pythonVersion)
+        addToPath: true
+      displayName: 'Setup Python $(pythonVersion)'
 
-#     # Install pytest and required dependencies
-#     - bash: |
-#         python -m pip install --upgrade pip
-#         pip install pytest pytest-asyncio httpx python-dotenv
-#       displayName: 'Install Test Dependencies'
+    # Install pytest and required dependencies
+    - bash: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio httpx python-dotenv
+      displayName: 'Install Test Dependencies'
 
-#     # Create test environment file
-#     - bash: |
-#         echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
-#         echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
-#         # Add any other environment variables needed for tests
-#       displayName: 'Create Test Environment File'
+    # Create test environment file
+    - bash: |
+        echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
+        echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
+        # Add any other environment variables needed for tests
+      displayName: 'Create Test Environment File'
       
-#     # Run the tests using script.sh
-#     - bash: |
-#         chmod +x $(Build.SourcesDirectory)/tests/script.sh
-#         cd $(Build.SourcesDirectory)/tests
-#         ./script.sh
-#       displayName: 'Run Tests using script.sh'
+    # Run the tests using script.sh
+    - bash: |
+        chmod +x $(Build.SourcesDirectory)/tests/script.sh
+        cd $(Build.SourcesDirectory)/tests
+        ./script.sh
+      displayName: 'Run Tests using script.sh'
       
-#     # Alternatively, run pytest directly if needed
-#     - bash: |
-#         cd $(Build.SourcesDirectory)/tests
-#         python -m pytest routes -v --junitxml=test-results.xml
-#       displayName: 'Run Tests with pytest'
-#       condition: always()  # Run even if the script.sh execution fails
+    # Alternatively, run pytest directly if needed
+    - bash: |
+        cd $(Build.SourcesDirectory)/tests
+        python -m pytest routes -v --junitxml=test-results.xml
+      displayName: 'Run Tests with pytest'
+      condition: always()  # Run even if the script.sh execution fails
     
-#     # Publish test results
-#     - task: PublishTestResults@2
-#       displayName: 'Publish Test Results'
-#       inputs:
-#         testResultsFormat: 'JUnit'
-#         testResultsFiles: '**/test-results.xml'
-#         mergeTestResults: true
-#         testRunTitle: 'Post Deployment Tests'
-#       condition: succeededOrFailed()
+    # Publish test results
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        mergeTestResults: true
+        testRunTitle: 'Post Deployment Tests'
+      condition: succeededOrFailed()
       
-#     # Archive test results
-#     - task: CopyFiles@2
-#       displayName: 'Copy Test Results'
-#       inputs:
-#         SourceFolder: '$(Build.SourcesDirectory)/tests/results'
-#         Contents: '**'
-#         TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
-#       condition: succeededOrFailed()
+    # Archive test results
+    - task: CopyFiles@2
+      displayName: 'Copy Test Results'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/tests/results'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
+      condition: succeededOrFailed()
       
-#     - task: PublishBuildArtifacts@1
-#       displayName: 'Publish Test Results Artifact'
-#       inputs:
-#         PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
-#         ArtifactName: 'test-results'
-#         publishLocation: 'Container'
-#       condition: succeededOrFailed()
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Test Results Artifact'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
+        ArtifactName: 'test-results'
+        publishLocation: 'Container'
+      condition: succeededOrFailed()
 
