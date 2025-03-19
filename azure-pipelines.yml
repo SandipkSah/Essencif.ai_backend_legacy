@@ -28,32 +28,6 @@ stages:
       persistCredentials: true  # Allows fetching Git tags
       fetchDepth: 0
 
-    # Get the latest Git tag and count commits
-    # - bash: |
-    #     latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
-    #     commit_count=$(git rev-list ${latest_tag}..HEAD --count)
-    #     new_version="${latest_tag}-rc.${commit_count}"
-    #     echo "Latest tag: $latest_tag"
-    #     echo "Commit count since last tag: $commit_count"
-    #     echo "Generated version: $new_version"
-    #     echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
-    #   displayName: "--unclear"
-
-    # - bash: |
-    #     # Get the latest tag (fallback to v1.0.0 if none exist)
-    #     latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
-
-    #     # Count commits since last tag
-    #     commit_count=$(git rev-list ${latest_tag}..HEAD --count)
-
-    #     # If no new commits, use the latest tag, otherwise, create an RC version
-    #     if [ "$commit_count" -eq "0" ]; then
-    #       new_version="$latest_tag"
-    #     else
-    #       new_version="${latest_tag}-rc.${commit_count}"
-    #     fi
-
-
     - script: |
         branch_name=$(git rev-parse --abbrev-ref HEAD)
         echo "======"
@@ -87,20 +61,20 @@ stages:
       displayName: "Verify VERSION_TAG"
 
     # Login to Azure Container Registry (if needed)
-    - task: Docker@2
-      displayName: Docker login to ACR
-      inputs:
-        command: login
-        containerRegistry: '$(containerRegistry)'
+    # - task: Docker@2
+    #   displayName: Docker login to ACR
+    #   inputs:
+    #     command: login
+    #     containerRegistry: '$(containerRegistry)'
 
-    - task: Docker@2
-      displayName: Build and Push Docker Image
-      inputs:
-        command: buildAndPush
-        containerRegistry: '$(containerRegistry)'
-        repository: '$(imageRegistry)'
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: "$(VERSION_TAG)"
+    # - task: Docker@2
+    #   displayName: Build and Push Docker Image
+    #   inputs:
+    #     command: buildAndPush
+    #     containerRegistry: '$(containerRegistry)'
+    #     repository: '$(imageRegistry)'
+    #     dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    #     tags: "$(VERSION_TAG)"
 
 
 
@@ -113,6 +87,7 @@ stages:
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
+    VERSION_TAG: $[ dependencies.Build.outputs['BuildDockerImage.SetVersionTag.VERSION_TAG'] ]
 
   jobs:
   - deployment: DevelopmentDeploymentJob
@@ -123,6 +98,10 @@ stages:
       runOnce:
         deploy:
           steps:
+          - script: |
+              echo "Deploying version: $(VERSION_TAG)"
+            displayName: "Verify VERSION_TAG before deployment"
+
           - task: AzureRmWebAppDeployment@4
             inputs:
               ConnectionType: 'AzureRM'
@@ -130,7 +109,7 @@ stages:
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               containers: $(containerRegistryServerURL)/$(imageRegistry):$(VERSION_TAG)
-              # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
               # DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
 - stage: DeployStaging
@@ -158,7 +137,7 @@ stages:
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               containers: $(containerRegistryServerURL)/$(imageRegistry):$(VERSION_TAG)
-              # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+              DockerNamespace: $(containerRegistryServerURL)
               # DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
   - job: RunPostDeploymentTests
