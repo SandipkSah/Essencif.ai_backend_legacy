@@ -97,7 +97,7 @@ stages:
         containerRegistry: '$(containerRegistry)'
         repository: '$(imageRegistry)'
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: '$(Build.BuildId)'
+        tags: "$(VERSION_TAG)"
 
 
 
