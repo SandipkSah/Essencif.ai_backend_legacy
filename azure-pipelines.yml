@@ -23,6 +23,49 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+
+    - checkout: self
+      persistCredentials: true  # Allows fetching Git tags
+
+    # Get the latest Git tag and count commits
+    # - bash: |
+    #     latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+    #     commit_count=$(git rev-list ${latest_tag}..HEAD --count)
+    #     new_version="${latest_tag}-rc.${commit_count}"
+    #     echo "Latest tag: $latest_tag"
+    #     echo "Commit count since last tag: $commit_count"
+    #     echo "Generated version: $new_version"
+    #     echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
+    #   displayName: "--unclear"
+
+    - bash: |
+        # Get the latest tag (fallback to v1.0.0 if none exist)
+        latest_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+
+        # Count commits since last tag
+        commit_count=$(git rev-list ${latest_tag}..HEAD --count)
+
+        # If no new commits, use the latest tag, otherwise, create an RC version
+        if [ "$commit_count" -eq "0" ]; then
+          new_version="$latest_tag"
+        else
+          new_version="${latest_tag}-rc.${commit_count}"
+        fi
+
+        # Print the generated version
+        echo "Latest tag: $latest_tag"
+        echo "Commit count since last tag: $commit_count"
+        echo "Generated version: $new_version"
+
+        # Set the version variable for Azure Pipelines
+        echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
+      displayName: "Generate Version Tag from Git"
+    
+    
+    - script: |
+        echo "VERSION_TAG: $(VERSION_TAG)"
+      displayName: "Verify VERSION_TAG"
+
     # Login to Azure Container Registry (if needed)
     - task: Docker@2
       displayName: Docker login to ACR
@@ -41,114 +84,114 @@ stages:
 
 
 
-- stage: DeployTesting
-  displayName: 'Deploy Testing'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
-  variables:
-    DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-test'
-    AZURE_COMPILATION_ENV: 'testing'
-    TEST_APP_URL: 'https://essencifai-backend-test-anaqarbvdpfxdkb0.canadacentral-01.azurewebsites.net/'
+# - stage: DeployTesting
+#   displayName: 'Deploy Testing'
+#   dependsOn: Build
+#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/test'))
+#   variables:
+#     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-test'
+#     AZURE_COMPILATION_ENV: 'testing'
+#     TEST_APP_URL: 'https://essencifai-backend-test-anaqarbvdpfxdkb0.canadacentral-01.azurewebsites.net/'
 
-  jobs:
-  - deployment: TestingDeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    environment: 'testing'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: $(azureServiceConnection)
-              appType: 'webAppContainer'
-              WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
-              DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
+#   jobs:
+#   - deployment: TestingDeploymentJob
+#     pool:
+#       vmImage: $(vmImageName)
+#     environment: 'testing'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#           - task: AzureRmWebAppDeployment@4
+#             inputs:
+#               ConnectionType: 'AzureRM'
+#               azureSubscription: $(azureServiceConnection)
+#               appType: 'webAppContainer'
+#               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
+#               containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
+#               DockerNamespace: 'essencifaibackendregistry.azurecr.io'
+#               DockerRepository: $(imageRegistry):$(Build.BuildId)
               
 
-  - job: RunPostDeploymentTests
-    displayName: 'Run Post-Deployment Tests'
-    dependsOn: TestingDeploymentJob
-    pool:
-      vmImage: $(vmImageName)
-    continueOnError: true 
-    steps:
-    - checkout: self
+#   - job: RunPostDeploymentTests
+#     displayName: 'Run Post-Deployment Tests'
+#     dependsOn: TestingDeploymentJob
+#     pool:
+#       vmImage: $(vmImageName)
+#     continueOnError: true 
+#     steps:
+#     - checkout: self
       
-    # Add a delay to ensure the app is fully ready
-    - bash: |
-        echo "Waiting for application to be fully deployed..."
-        sleep 30
-      displayName: 'Wait for App to Stabilize'
+#     # Add a delay to ensure the app is fully ready
+#     - bash: |
+#         echo "Waiting for application to be fully deployed..."
+#         sleep 30
+#       displayName: 'Wait for App to Stabilize'
 
-    # Setup Python environment
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: $(pythonVersion)
-        addToPath: true
-      displayName: 'Setup Python $(pythonVersion)'
+#     # Setup Python environment
+#     - task: UsePythonVersion@0
+#       inputs:
+#         versionSpec: $(pythonVersion)
+#         addToPath: true
+#       displayName: 'Setup Python $(pythonVersion)'
 
-    # Install pytest and required dependencies
-    - bash: |
-        python -m pip install --upgrade pip
-        pip install pytest pytest-asyncio httpx python-dotenv
-      displayName: 'Install Test Dependencies'
+#     # Install pytest and required dependencies
+#     - bash: |
+#         python -m pip install --upgrade pip
+#         pip install pytest pytest-asyncio httpx python-dotenv
+#       displayName: 'Install Test Dependencies'
 
-    # Create test environment file
-    - bash: |
-        echo "BASE_URL=$(TEST_APP_URL)" > $(Build.SourcesDirectory)/tests/.env.test
-        echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
-        echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
-        # Add any other environment variables needed for tests
-      displayName: 'Create Test Environment File'
+#     # Create test environment file
+#     - bash: |
+#         echo "BASE_URL=$(TEST_APP_URL)" > $(Build.SourcesDirectory)/tests/.env.test
+#         echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
+#         echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
+#         echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
+#         echo "VALID_TICKER=AAPL" >> $(Build.SourcesDirectory)/tests/.env.test
+#         echo "INVALID_TICKER=INVALIDTICKER" >> $(Build.SourcesDirectory)/tests/.env.test
+#         # Add any other environment variables needed for tests
+#       displayName: 'Create Test Environment File'
       
-    # Run the tests using script.sh
-    - bash: |
-        chmod +x $(Build.SourcesDirectory)/tests/script.sh
-        cd $(Build.SourcesDirectory)/tests
-        ./script.sh
-      displayName: 'Run Tests using script.sh'
+#     # Run the tests using script.sh
+#     - bash: |
+#         chmod +x $(Build.SourcesDirectory)/tests/script.sh
+#         cd $(Build.SourcesDirectory)/tests
+#         ./script.sh
+#       displayName: 'Run Tests using script.sh'
       
-    # Alternatively, run pytest directly if needed
-    - bash: |
-        cd $(Build.SourcesDirectory)/tests
-        python -m pytest routes -v --junitxml=test-results.xml
-      displayName: 'Run Tests with pytest'
-      condition: always()  # Run even if the script.sh execution fails
+#     # Alternatively, run pytest directly if needed
+#     - bash: |
+#         cd $(Build.SourcesDirectory)/tests
+#         python -m pytest routes -v --junitxml=test-results.xml
+#       displayName: 'Run Tests with pytest'
+#       condition: always()  # Run even if the script.sh execution fails
     
-    # Publish test results
-    - task: PublishTestResults@2
-      displayName: 'Publish Test Results'
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '**/test-results.xml'
-        mergeTestResults: true
-        testRunTitle: 'Post Deployment Tests'
-      condition: succeededOrFailed()
+#     # Publish test results
+#     - task: PublishTestResults@2
+#       displayName: 'Publish Test Results'
+#       inputs:
+#         testResultsFormat: 'JUnit'
+#         testResultsFiles: '**/test-results.xml'
+#         mergeTestResults: true
+#         testRunTitle: 'Post Deployment Tests'
+#       condition: succeededOrFailed()
       
-    # Archive test results
-    - task: CopyFiles@2
-      displayName: 'Copy Test Results'
-      inputs:
-        SourceFolder: '$(Build.SourcesDirectory)/tests/results'
-        Contents: '**'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
-      condition: succeededOrFailed()
+#     # Archive test results
+#     - task: CopyFiles@2
+#       displayName: 'Copy Test Results'
+#       inputs:
+#         SourceFolder: '$(Build.SourcesDirectory)/tests/results'
+#         Contents: '**'
+#         TargetFolder: '$(Build.ArtifactStagingDirectory)/test-results'
+#       condition: succeededOrFailed()
       
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Test Results Artifact'
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
-        ArtifactName: 'test-results'
-        publishLocation: 'Container'
-      condition: succeededOrFailed()
+#     - task: PublishBuildArtifacts@1
+#       displayName: 'Publish Test Results Artifact'
+#       inputs:
+#         PathtoPublish: '$(Build.ArtifactStagingDirectory)/test-results'
+#         ArtifactName: 'test-results'
+#         publishLocation: 'Container'
+#       condition: succeededOrFailed()
 
 
 - stage: DeployDevelopment
@@ -174,9 +217,9 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
               DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
 - stage: DeployStaging
   displayName: 'Deploy Staging'
@@ -202,9 +245,9 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
               DockerNamespace: 'essencifaibackendregistry.azurecr.io'
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
@@ -236,7 +279,7 @@ stages:
 
     # Create test environment file
     - bash: |
-        echo "BASE_URL=$(TEST_APP_URL)" > $(Build.SourcesDirectory)/tests/.env.test
+        echo "BASE_URL=$(BASE_URL)" > $(Build.SourcesDirectory)/tests/.env.test
         echo "VALID_USER_ID=51c18180-3f42-4984-84db-68b28a8772f6" >> $(Build.SourcesDirectory)/tests/.env.test
         echo "INVALID_USER_ID=51c18180-3f42-4984-84db-68b28a1111g9" >> $(Build.SourcesDirectory)/tests/.env.test
         echo "PROJECT_ID=1" >> $(Build.SourcesDirectory)/tests/.env.test
@@ -311,9 +354,9 @@ stages:
               azureSubscription: $(azureServiceConnection)
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
-              containers: $(containerRegistry)/$(imageRegistry):$(Build.BuildId)
+              containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
               # DockerNamespace: 'essencifaibackendregistry.azurecr.io'
               DockerNamespace: $(containerRegistryServerURL)
-              DockerRepository: $(imageRegistry):$(Build.BuildId)
+              DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
 
