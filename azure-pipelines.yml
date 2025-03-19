@@ -31,7 +31,7 @@ stages:
 
     - script: |
         echo $(Build.SourceBranchName)
-        branch_name=$(git rev-parse --abbrev-ref HEAD)
+        branch_name=$(Build.SourceBranchName)
         echo "======"
         echo "$(git describe --tags --abbrev=0)"
         echo "$(git describe --tags)"
@@ -91,17 +91,14 @@ stages:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
     VERSION_TAG: $[stageDependencies.Build.BuildDockerImage.outputs['setVersionTag.VERSION_TAG']]
-    deps: $[convertToJson(stageDependencies)]
-    buildVar: $[convertToJson(Build)]
+  
 
   jobs:
   - job: printVariable
-    
     steps:
-    - powershell: Write-Host "$(buildVar)"
     - script: |
         echo this is versiontag: $(VERSION_TAG)
-        echo "this what $(buildVar)"
+
       name: setVersionTag
       displayName: "Generate Version Tag"
     
