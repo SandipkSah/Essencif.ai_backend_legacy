@@ -94,7 +94,7 @@ stages:
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
-    VERSION_TAG: $[ dependencies.Build.outputs['BuildDockerImage.SetVersionTag.VERSION_TAG'] ]
+    VERSION_TAG: $[ dependencies.Build.outputs['SetVersionTag.VERSION_TAG'] ]
 
   jobs:
   - deployment: DevelopmentDeploymentJob
