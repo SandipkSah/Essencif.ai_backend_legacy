@@ -55,9 +55,12 @@ stages:
 
 
     - script: |
-        git fetch --unshallow || true
         branch_name=$(git rev-parse --abbrev-ref HEAD)
-        last_tag=$(git describe --tags --abbrev=0)
+        echo "======"
+        echo "$(git describe --tags --abbrev=0)"
+        echo "$(git describe --tags)"
+        echo "====="
+        last_tag=$(git describe --tags --abbrev=0 || echo "v1.0.0")
         commit_number=$(git rev-list $last_tag..HEAD --count)
 
         if [[ "$branch_name" == "master" ]]; then
