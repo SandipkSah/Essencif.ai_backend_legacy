@@ -114,7 +114,7 @@ stages:
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
-    dependsOn: DevelopmentStagingJob
+    dependsOn: DevelopmentDeploymentJob
     pool:
       vmImage: $(vmImageName)
     continueOnError: true 
@@ -337,7 +337,7 @@ stages:
 
   - job: RunPostDeploymentTests
     displayName: 'Run Post-Deployment Tests'
-    dependsOn: DevelopmentStagingJob
+    dependsOn: DevelopmentProductionJob
     pool:
       vmImage: $(vmImageName)
     continueOnError: true 
