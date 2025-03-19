@@ -55,6 +55,7 @@ stages:
         echo "##vso[task.setvariable variable=VERSION_TAG]$new_version"
         echo "##vso[task.setvariable variable=VERSION_TAG;isOutput=true]$new_version"
         echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]this is from job A"
+        echo "##vso[task.setvariable variable=myStageVal;isOutput=true]this is a stage output variable"
 
       name: SetVersionTag 
       displayName: "Generate Version Tag"
@@ -90,8 +91,8 @@ stages:
   variables:
     DEPLOYMENT_APP_SERVICE_CONTAINER: 'essencifai-backend-dev'
     AZURE_COMPILATION_ENV: 'development'
-    VERSION_TAG: $[ dependencies.BuildDockerImage.outputs['SetVersionTag.VERSION_TAG'] ]
-    myVarFromJobA: $[ dependencies.BuildDockerImage.outputs['SetVersionTag.myOutputVar'] ]  
+    VERSION_TAG: $[ stageDependencies.Build.BuildDockerImage.outputs['SetVersionTag.VERSION_TAG'] ]
+    myVarFromJobA: $[ stageDependencies.Build.BuildDockerImage.outputs['SetVersionTag.myOutputVar'] ]  
 
 
   jobs:
