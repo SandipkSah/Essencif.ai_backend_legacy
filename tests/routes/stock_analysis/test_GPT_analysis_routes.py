@@ -29,8 +29,10 @@ parameter = {
     "top_p": 0.85,
     "user": "Essencifai"
 }
+project_test_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',  '..'))
+TEST_PDF_PATH = os.path.join(project_test_dir,  'assets/test_annual_report.pdf')
 
-TEST_PDF_PATH = "./tests/assets/test_annual_report.pdf"
+print(TEST_PDF_PATH, "test_document_analysis_gpt_knowledge")
 
 def encode_pdf(file_path):
     with open(file_path, "rb") as file:

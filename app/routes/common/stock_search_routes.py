@@ -7,11 +7,10 @@ stock_search_blueprint = Blueprint('stock_search', __name__)
 
 # Get the absolute path to the project root directory
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-print(project_root, "project root directory")
+# print(project_root, "project root directory")
 
 # Construct the path to the CSV file
 csv_file_path = os.path.join(project_root, '../updated_stocks_list.csv')
-print(csv_file_path, "just checking")
 
 
 try:

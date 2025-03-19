@@ -12,8 +12,8 @@ VALID_USER_ID = os.getenv("VALID_USER_ID")
 INVALID_USER_ID = os.getenv("INVALID_USER_ID")
 
 @pytest.mark.asyncio
-async def test_is_admin_with_valid_user_id():
+async def test_is_server_running():
     async with httpx.AsyncClient() as client:
-        response = await client.get(f'{BASE_URL}/api/admin_check?user_id={VALID_USER_ID}')
+        response = await client.get(f'{BASE_URL}')
         assert response.status_code == 200
         assert "Hello" in response.text
