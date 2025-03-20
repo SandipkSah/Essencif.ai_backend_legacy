@@ -58,7 +58,7 @@ stages:
     
     
     - script: |
-        echo "VERSION_TAG: $(VERSION_TAG)"
+        echo "VERSION_TAG: $(setVersionTag.VERSION_TAG)"
       displayName: "Verify VERSION_TAG"
 
     # Login to Azure Container Registry (if needed)
@@ -216,7 +216,7 @@ stages:
               appType: 'webAppContainer'
               WebAppName: $(DEPLOYMENT_APP_SERVICE_CONTAINER)
               containers: $(containerRegistry)/$(imageRegistry):$(VERSION_TAG)
-              DockerNamespace: $(containerRegistryServerUR)
+              DockerNamespace: $(containerRegistryServerURL)
               DockerRepository: $(imageRegistry):$(VERSION_TAG)
 
   - job: RunPostDeploymentTests

@@ -14,7 +14,6 @@ INVALID_TICKER = os.getenv("INVALID_TICKER")
 async def test_get_recent_news_with_valid_ticker():
     async with httpx.AsyncClient() as client:
         response = await client.get(f'{BASE_URL}/api/recent_news/{VALID_TICKER}')
-        print(response.json())  # Print the response
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -24,8 +23,6 @@ async def test_get_recent_news_with_valid_ticker():
 async def test_get_recent_news_with_invalid_ticker():
     async with httpx.AsyncClient() as client:
         response = await client.get(f'{BASE_URL}/api/recent_news/{INVALID_TICKER}')
-        print(response.status_code)  # Print the status code
-        print(response.json())  # Print the response
         assert response.status_code == 200  # Adjust based on actual response
         data = response.json()
         assert data == []  # Expecting an empty list

@@ -59,8 +59,8 @@ async def test_document_analysis_gpt_knowledge():
     async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(f'{BASE_URL}/api/document_analysis', json=payload, headers=headers)
 
-        print("Response Status:", response.status_code)
-        print("Response Text:", response.text)  # Print full error message from the backend
+        # print("Response Status:", response.status_code)
+        # print("Response Text:", response.text)  # Print full error message from the backend
         assert response.status_code == 200, f"Unexpected status {response.status_code}: {response.text}"
         print(response.text)
         data = response.json()
@@ -93,8 +93,8 @@ async def test_document_analysis_report():
         async with httpx.AsyncClient(timeout=300.0) as client:
             response = await client.post(f'{BASE_URL}/api/document_analysis', json=payload, headers=headers)
 
-        print("Response Status:", response.status_code)
-        print("Response Text:", response.text)  # Print full error message from the backend
+        # print("Response Status:", response.status_code)
+        # print("Response Text:", response.text)  # Print full error message from the backend
         assert response.status_code == 200, f"Unexpected status {response.status_code}: {response.text}"
         print(response.text)
         data = response.json()
@@ -126,8 +126,8 @@ async def test_document_analysis_sec_filing():
     async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(f'{BASE_URL}/api/document_analysis', json=payload, headers=headers)
 
-        print("Response Status:", response.status_code)
-        print("Response Text:", response.text)  # Print full error message from the backend
+        # print("Response Status:", response.status_code)
+        # print("Response Text:", response.text)  # Print full error message from the backend
         assert response.status_code == 200, f"Unexpected status {response.status_code}: {response.text}"
         print(response.text)
         data = response.json()
