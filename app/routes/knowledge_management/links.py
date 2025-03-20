@@ -10,12 +10,31 @@ COLLECTION_METADATA_NAME = os.getenv("COLLECTION_METADATA", "metadata_collection
 COLLECTION_CHUNK_NAME = os.getenv("COLLECTION_CHUNK", "chunk_collection")
 WORKER_URL = os.getenv("WORKER_URL", "http://localhost:8000")
 
+# @link_blueprint.route('/api/links/personal', methods=['GET'])
+# async def get_links():
+#     """
+#     Route that returns entries for a specific userID from Qdrant.
+#     """
+#     tippgeber_id = request.args.get('tippgeber_id')
+
+#     try:
+#         documents = await get_documents(COLLECTION_METADATA_NAME, tippgeber_id)
+        
+#         return jsonify({
+#             "documents": documents,
+#         }), 200
+#     except Exception as e:
+#         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 @link_blueprint.route('/api/links/personal', methods=['GET'])
 async def get_links():
     """
     Route that returns entries for a specific userID from Qdrant.
     """
     tippgeber_id = request.args.get('tippgeber_id')
+
+    if not tippgeber_id:
+        return jsonify({"error": "userID is required"}), 400
 
     try:
         documents = await get_documents(COLLECTION_METADATA_NAME, tippgeber_id)
@@ -24,8 +43,7 @@ async def get_links():
             "documents": documents,
         }), 200
     except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-    
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500  
     
 @link_blueprint.route('/api/links/all', methods=['GET'])
 async def get_all_links():

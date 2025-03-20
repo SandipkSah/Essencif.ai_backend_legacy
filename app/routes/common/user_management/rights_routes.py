@@ -19,7 +19,7 @@ async def get_user_roles():
     if is_admin:
         # Provide access to all projects with the role of admin
         solution_groups = await SolutionGroup.all()
-        rights_data = [{"project": ug.name, "role": "admin", "project_id": ug.solution_group_id} for ug in solution_groups]
+        rights_data = [{"project": sg.name, "role": "admin", "project_id": sg.solution_group_id} for sg in solution_groups]
         return jsonify(rights_data), 200
 
     user_roles = []
