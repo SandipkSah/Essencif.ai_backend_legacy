@@ -1,7 +1,7 @@
 from app.models.context import Context
 from app.models.parameter import Parameter
 from app.models.prompt import Prompt
-from app.models import SolutionGroup  # Import SolutionGroup model
+from app.models.solution_group import SolutionGroup  # Import SolutionGroup model
 
 
 async def insert_contexts(contexts):
