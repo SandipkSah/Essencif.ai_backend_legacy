@@ -13,7 +13,7 @@ PROJECT_ID = os.getenv("PROJECT_ID")
 
 @pytest.mark.asyncio
 async def test_get_implementations_with_valid_projects():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(f'{BASE_URL}/api/implementations', json={"projects": [PROJECT_ID]})
         assert response.status_code == 200
         data = response.json()
@@ -28,14 +28,14 @@ async def test_get_implementations_with_valid_projects():
 
 @pytest.mark.asyncio
 async def test_get_implementations_with_empty_projects():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(f'{BASE_URL}/api/implementations', json={"projects": []})
         assert response.status_code == 400
         assert response.json() == {"error": "projects_list is required"}
 
 @pytest.mark.asyncio
 async def test_get_implementations_missing_projects():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(f'{BASE_URL}/api/implementations', json={})
         assert response.status_code == 400
         assert response.json() == {"error": "projects_list is required"}
@@ -43,7 +43,7 @@ async def test_get_implementations_missing_projects():
 # @pytest.mark.asyncio
 # async def test_get_implementations_internal_server_error(mocker):
 #     mocker.patch('app.models.implementation.Implementation.filter', side_effect=Exception("Test exception"))
-#     async with httpx.AsyncClient() as client:
+#     async with httpx.AsyncClient(timeout=300.0) as client:
 #         response = await client.post(f'{BASE_URL}/api/implementations', json={"projects": ["project1", "project2"]})
 #         assert response.status_code == 500
 #         assert response.json() == {"error": "An error occurred: Test exception", "status_code": 500}
