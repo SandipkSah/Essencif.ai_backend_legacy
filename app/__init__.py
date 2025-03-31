@@ -42,7 +42,7 @@ async def init_tortoise():
                 ]
             },
     )
-    await Tortoise.generate_schemas(safe=True)
+    # await Tortoise.generate_schemas(safe=True)
     
 
 # Initialize the database (you should now await this in the main async function)
