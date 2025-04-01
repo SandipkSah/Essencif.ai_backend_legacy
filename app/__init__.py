@@ -20,7 +20,7 @@ load_dotenv(override=True)
 # Database initialization function
 async def init_tortoise():
     await Tortoise.init(
-        db_url=current_app.config.get("DB_URL", "sqlite://essencifai"),
+        db_url=os.getenv("DB_URL", "sqlite://essencifai"),
         modules={
             "models": [
                 "app.models.applicationAdmins",
