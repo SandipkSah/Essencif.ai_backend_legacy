@@ -13,46 +13,7 @@ OPENAI_KEY =  os.getenv('OPENAI_KEY')
 
 
 GPT_analysis_blueprint = Blueprint('document_analysis', __name__)
-
-# def download_save_annual_report(ticker):
-
-#     sec_report_urls_list_file = "cik_report_urls.csv"
-#     df = pd.read_csv(sec_report_urls_list_file)
-    
-    
-#     # Filter the DataFrame to find the row with the matching ticker
-#     report_row = df.loc[df['ticker'].str.lower() == ticker.lower()]
-    
-#     if not report_row.empty:
-#         # Extract the URL from the filtered DataFrame
-#         url = report_row['report_url'].iloc[0]
-        
-#         # Code to download and save the annual report can be added here
-#         # For example, using requests or another library to download the file
-        
-#     else:
-#         print(f"No report found for ticker: {ticker}")
-#         return -1
-
-#     # Download the PDF file
-#     response = requests.get(url)
-    
-#     # Check if the request was successful
-#     if response.status_code == 200:
-#         file_data = response.content
-        
-#         # Create a temporary file
-#         file_name = f'{ticker}_2023.pdf'
-#         temp_file_path = os.path.join(tempfile.gettempdir(), file_name)
-        
-#         # Save the PDF file to the temporary file
-#         with open(temp_file_path, 'wb') as temp_file:
-#             temp_file.write(file_data)
-        
-#         return temp_file_path
-#     else:
-#         raise Exception(f"Failed to download PDF from {url}. Status code: {response.status_code}")
-        
+  
 
 
 def download_extract_text_annual_report(ticker):
@@ -164,25 +125,6 @@ def summarize_text_annual_report(text, parameter, context):
     return response.choices[0].message.content.strip()
 
 def summarize_text_website(link, parameter, context):
-    # messages = [
-    #     {"role": "system", "content": context},
-    #     {"role": "user", "content": parameter['prompt']}
-    # ]
-
-    # client = openai.OpenAI(api_key=OPENAI_KEY)
-    # response = client.chat.completions.create(
-    #     model=parameter['Engine'],
-    #     messages=messages,
-    #     # max_tokens=parameter['Max_tokens'],
-    #     temperature=parameter['temperature'],
-    #     top_p=parameter['top_p'],
-    #     n=parameter['n'],
-    #     stream=parameter['stream'],
-    #     presence_penalty=parameter['presence_penalty'],
-    #     frequency_penalty=parameter['frequency_penalty'],
-    #     user=parameter['user']
-    # )
-    # return response.choices[0].message.content.strip()
     return f"this is yet to be implemented,the parameters passed are  {link}, {context} and prompts"
 
 def summarize_text_internet(parameter, context):
@@ -205,7 +147,6 @@ def summarize_text_internet(parameter, context):
         user=parameter.get('user')
     )
     return response.choices[0].message.content.strip()
-
 
 
 
