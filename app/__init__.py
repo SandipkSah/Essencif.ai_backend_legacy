@@ -64,5 +64,5 @@ async def after_request(response):
 
 if __name__ == "__main__":
     # app.run(debug=True)
-    port = int(os.getenv("PORT", 8080))  # Default to 8000 if PORT is not set
+    port = int(os.getenv("PORT", 8000))  # Default to 8000 if PORT is not set
     app.run(host="0.0.0.0", port=port, debug=True)
