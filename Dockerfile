@@ -14,5 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8080
 
 # Command to run the application using Hypercorn with timeout set to 300 seconds
-# CMD ["hypercorn", "app:app", "--bind", "0.0.0.0:8080", "--log-level", "debug", "--timeout", "300"]
 CMD ["hypercorn", "app:app", "--bind", "0.0.0.0:8080", "--log-level", "debug", "--keep-alive", "300"]
