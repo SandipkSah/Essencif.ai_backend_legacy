@@ -23,6 +23,7 @@ async def  prompts_upload():
         # Decode the base64-encoded file content
         # owner = data['owner']
         file_content = base64.b64decode(data['excel_file'])
+        replace_prompt = data.get('replace_prompt', False)
         input_file = io.BytesIO(file_content)
 
         # # Load the uploaded Excel file directly into a new workbook object
@@ -43,9 +44,9 @@ async def  prompts_upload():
 
         try:
             # Upload the prompts, contexts, and parameters to the database
-            await insert_contexts(contexts)
-            await insert_prompts(prompts)
-            await insert_parameters(parameters)
+            await insert_contexts(contexts, replace_prompt)
+            await insert_prompts(prompts, replace_prompt)
+            await insert_parameters(parameters, replace_prompt)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         
