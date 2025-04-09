@@ -14,6 +14,7 @@ async def  prompts_upload():
     # Assuming JSON data is sent with a base64-encoded Excel file
     # data = request.get_json()
     data = await request.get_json()  #  Correct
+    print("the passed data is ", data)
 
 
     if not data or 'excel_file' not in data:
