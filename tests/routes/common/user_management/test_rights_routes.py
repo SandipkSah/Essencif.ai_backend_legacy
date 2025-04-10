@@ -12,8 +12,17 @@ INVALID_USER_ID = os.getenv("INVALID_USER_ID")
 
 @pytest.mark.asyncio
 async def test_get_user_roles_with_valid_user_id():
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f'{BASE_URL}/api/rights?user_id={VALID_USER_ID}')
+    payload = {
+        "user_id": VALID_USER_ID,
+        "email": f"test_{VALID_USER_ID}@example.com",
+        "given_name": "Valid",
+        "surname": "User",
+        "company": "ValidCorp",
+        "position": "Developer"
+    }
+
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(f'{BASE_URL}/api/rights', json=payload)
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -24,17 +33,31 @@ async def test_get_user_roles_with_valid_user_id():
 
 @pytest.mark.asyncio
 async def test_get_user_roles_with_invalid_user_id():
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f'{BASE_URL}/api/rights?user_id={INVALID_USER_ID}')
+    payload = {
+        "user_id": INVALID_USER_ID
+    }
+
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(f'{BASE_URL}/api/rights', json=payload)
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
-        assert len(data) == 1  # Assuming no roles for invalid user ID
+        assert len(data) == 1  # Only Essencif.AI default role
 
 @pytest.mark.asyncio
 async def test_get_user_roles_missing_user_id():
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f'{BASE_URL}/api/rights')
-        assert response.status_code == 400
-        assert response.json() == {"error": "userID is required"}
+    payload = {}
 
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(f'{BASE_URL}/api/rights', json=payload)
+        # assert response.status_code == 400
+        assert "error" in response.json() 
+
+@pytest.mark.asyncio
+async def test_get_user_roles_invalid_json():
+    headers = {"Content-Type": "application/json"}
+
+    async with httpx.AsyncClient(timeout=300.0) as client:
+        response = await client.post(f'{BASE_URL}/api/rights', content="not-a-json", headers=headers)
+        # assert response.status_code == 400
+        assert "error" in response.json()

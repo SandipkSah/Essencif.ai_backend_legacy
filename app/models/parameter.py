@@ -3,7 +3,7 @@ from .solution_group import SolutionGroup
 
 class Parameter(models.Model):
     parameter_id = fields.IntField(pk=True)
-    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="parameter", source_field="owner")
+    owner = fields.ForeignKeyField("models.SolutionGroup", related_name="parameter", source_field="owner", on_delete=fields.NO_ACTION)
     parameter_set = fields.CharField(max_length=500)
     engine = fields.CharField(max_length=50)
     max_tokens = fields.IntField()

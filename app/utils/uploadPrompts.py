@@ -1,73 +1,118 @@
 from app.models.context import Context
 from app.models.parameter import Parameter
 from app.models.prompt import Prompt
+from app.models.solution_group import SolutionGroup  # Import SolutionGroup model
 
 
-# async def insert_prompts(prompts, owner):
-#     try:
-#         inserted_count = 0
-#         for prompt in prompts:
-#             prompt = {k.lower(): v for k, v in prompt.items()}  # Normalize keys
 
-#             if 'owner' not in prompt or not prompt['owner']:
-#                 print(f"Skipping prompt due to missing owner: {prompt}")
-#                 continue
+async def insert_contexts(contexts, replace_prompt=False):
+    print(contexts, "just to see what kind of contexts is being uploaded")
+    if contexts:
+        print("and the owner and its type are", contexts[0].get("owner"), type(contexts[0].get("owner")))
 
-#             existing_prompt = await Prompt.filter(
-#                 owner=prompt['owner'],
-#                 promptname=prompt['promptname']
-#             ).first()
-
-#             if not existing_prompt:
-#                 await Prompt.create(**prompt)
-#                 inserted_count += 1
-
-#         return inserted_count
-
-#     except Exception as e:
-#         print(f"Error uploading prompts: {e}")
-#         raise
-async def insert_prompts(prompts, owner):
-    print(prompts, "just to see what kind of prompt is being uploaded")
-    print("and the owner and its type are", owner, type(owner))
     try:
+        if not contexts:
+            return 0
+
         inserted_count = 0
+
+        # If replace_prompt is True, delete all existing contexts (ignoring owner)
+        if replace_prompt:
+            await Context.all().delete()
+
+        for context in contexts:
+            owner_id = context.get("owner")
+            owner = await SolutionGroup.get(solution_group_id=owner_id)
+
+            context_data = {
+                "owner": owner,
+                "context_name": context.get("context_name", ""),
+                "detailed_definition": context.get("detailed_definition", ""),
+                "level": context.get("level", "n/a")
+            }
+
+            if not replace_prompt:
+                existing_context = await Context.filter(
+                    owner=owner,
+                    context_name=context_data["context_name"]
+                ).first()
+
+                if existing_context:
+                    continue  # Skip duplicate
+
+            await Context.create(**context_data)
+            inserted_count += 1
+
+        return inserted_count
+
+    except Exception as e:
+        print(f"Error uploading contexts: {e}")
+        raise
+
+
+
+async def insert_prompts(prompts, replace_prompt=False):
+    print(prompts, "just to see what kind of prompt is being uploaded")
+
+    try:
+        if not prompts:
+            return 0
+
+        inserted_count = 0
+
+        # If replace_prompt is True, delete all existing prompts regardless of owner
+        if replace_prompt:
+            await Prompt.all().delete()
+
         for prompt in prompts:
-            # prompt = {k.lower(): v for k, v in prompt.items()}  # Normalize keys
-            
-            # Create a dictionary with the correct field names
+            owner_id = prompt.get("owner")
+            owner = await SolutionGroup.get(solution_group_id=owner_id)
+
             prompt_data = {
-                "owner_id": owner,  # Assuming owner is the ID of the SolutionGroup
+                "owner": owner,
                 "prompt_name": prompt.get("prompt_name", ""),
                 "detailed_definition": prompt.get("detailed_definition", ""),
                 "level": prompt.get("level", "n/a")
             }
-            
-            # Check if prompt with the same name already exists for this owner
-            existing_prompt = await Prompt.filter(
-                owner_id=owner,
-                name=prompt_data["name"]
-            ).first()
-            
-            if not existing_prompt:
-                await Prompt.create(**prompt_data)
-                inserted_count += 1
-            
+
+            if not replace_prompt:
+                existing_prompt = await Prompt.filter(
+                    owner=owner,
+                    prompt_name=prompt_data["prompt_name"]
+                ).first()
+
+                if existing_prompt:
+                    continue  # Skip duplicate
+
+            await Prompt.create(**prompt_data)
+            inserted_count += 1
+
         return inserted_count
-        
+
     except Exception as e:
         print(f"Error uploading prompts: {e}")
         raise
 
-async def insert_parameters(parameters, owner):
-    print(parameters, "just to see what kind of parameters is being uploaded")
-    print("and the owner and its type are", owner, type(owner))
+
+async def insert_parameters(parameters, replace_prompt):
+    print(parameters, "just to see what kind of parameters are being uploaded")
+    
     try:
+        if not parameters:
+            return 0
+
         inserted_count = 0
+
+        # If replace_prompt is True, delete all existing parameters
+        if replace_prompt:
+            await Parameter.all().delete()
+
         for parameter in parameters:
-            # Create a dictionary with the correct field names
+            owner_id = parameter.get("owner")
+            owner = await SolutionGroup.get(solution_group_id=owner_id)
+
             parameter_data = {
-                "owner_id": owner,  # Foreign key reference
+                "owner": owner,
                 "parameter_set": parameter.get("parameter_set", ""),
                 "engine": parameter.get("engine", ""),
                 "max_tokens": parameter.get("max_tokens", 0),
@@ -81,123 +126,29 @@ async def insert_parameters(parameters, owner):
                 "level": parameter.get("level", "n/a")
             }
 
-            # Check if parameter with the same attributes already exists
-            existing_parameter = await Parameter.filter(
-                owner_id=owner,
-                parameter_set=parameter_data["parameter_set"],
-                engine=parameter_data["engine"],
-                max_tokens=parameter_data["max_tokens"],
-                temperature=parameter_data["temperature"],
-                top_p=parameter_data["top_p"],
-                n=parameter_data["n"],
-                stream=parameter_data["stream"],
-                presence_penalty=parameter_data["presence_penalty"],
-                frequency_penalty=parameter_data["frequency_penalty"],
-                username=parameter_data["username"]
-            ).first()
+            if not replace_prompt:
+                existing_parameter = await Parameter.filter(
+                    owner=owner,
+                    parameter_set=parameter_data["parameter_set"],
+                    engine=parameter_data["engine"],
+                    max_tokens=parameter_data["max_tokens"],
+                    temperature=parameter_data["temperature"],
+                    top_p=parameter_data["top_p"],
+                    n=parameter_data["n"],
+                    stream=parameter_data["stream"],
+                    presence_penalty=parameter_data["presence_penalty"],
+                    frequency_penalty=parameter_data["frequency_penalty"],
+                    username=parameter_data["username"]
+                ).first()
 
-            if not existing_parameter:
-                await Parameter.create(**parameter_data)
-                inserted_count += 1
+                if existing_parameter:
+                    continue  # Skip duplicate
+
+            await Parameter.create(**parameter_data)
+            inserted_count += 1
 
         return inserted_count
 
     except Exception as e:
         print(f"Error uploading parameters: {e}")
-        raise
-
-
-async def insert_contexts(contexts, owner):
-    print(contexts, "just to see what kind of contexts is being uploaded")
-    print("and the owner and its type are", owner, type(owner))
-    try:
-        inserted_count = 0
-        for context in contexts:
-            # Create a dictionary with the correct field names
-            context_data = {
-                "owner_id": owner,  # Foreign key reference
-                "context_name": context.get("context_name", ""),
-                "detailed_definition": context.get("detailed_definition", ""),
-                "level": context.get("level", "n/a")
-            }
-
-            # Check if a context with the same name already exists for this owner
-            existing_context = await Context.filter(
-                owner_id=owner,
-                name=context_data["name"]
-            ).first()
-
-            if not existing_context:
-                await Context.create(**context_data)
-                inserted_count += 1
-
-        return inserted_count
-
-    except Exception as e:
-        print(f"Error uploading contexts: {e}")
-        raise
-
-
-# async def insert_parameters(parameters, owner):
-#     print(parameters, "just to see what kind of parameters is being uploaded")
-#     print("and the owner and its type are", owner, type(owner))
-#     try:
-#         inserted_count = 0
-#         for parameter in parameters:
-#             parameter = {k.lower(): v for k, v in parameter.items()}  # Normalize keys
-
-#             if 'owner' not in parameter or not parameter['owner']:
-#                 print(f"Skipping parameter due to missing owner: {parameter}")
-#                 continue
-
-#             existing_parameter = await Parameter.filter(
-#                 owner=parameter['owner'],
-#                 parameterset=parameter['parameterset'],
-#                 engine=parameter.get('engine'),
-#                 max_tokens=parameter.get('max_tokens'),
-#                 temperature=parameter.get('temperature'),
-#                 top_p=parameter.get('top_p'),
-#                 n=parameter.get('n'),
-#                 stream=parameter.get('stream'),
-#                 presence_penalty=parameter.get('presence_penalty'),
-#                 frequency_penalty=parameter.get('frequency_penalty'),
-#                 username=parameter.get('username')
-#             ).first()
-
-#             if not existing_parameter:
-#                 await Parameter.create(**parameter)
-#                 inserted_count += 1
-
-#         return inserted_count
-
-#     except Exception as e:
-#         print(f"Error uploading parameters: {e}")
-#         raise
-
-
-# async def insert_contexts(contexts,owner):
-    print(contexts, "just to see what kind of contexts is being uploaded")
-    print("and the owner and its type are", owner, type(owner))
-    try:
-        inserted_count = 0
-        for context in contexts:
-            context = {k.lower(): v for k, v in context.items()}  # Normalize keys
-
-            if 'owner' not in context or not context['owner']:
-                print(f"Skipping context due to missing owner: {context}")
-                continue
-
-            existing_context = await Context.filter(
-                owner=context['owner'],
-                contextname=context['contextname']
-            ).first()
-
-            if not existing_context:
-                await Context.create(**context)
-                inserted_count += 1
-
-        return inserted_count
-
-    except Exception as e:
-        print(f"Error uploading contexts: {e}")
         raise

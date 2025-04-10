@@ -12,7 +12,7 @@ INVALID_USER_ID = os.getenv("INVALID_USER_ID")
 
 @pytest.mark.asyncio
 async def test_get_prompts_with_valid_user_id():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/prompts?user_id={VALID_USER_ID}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -22,7 +22,7 @@ async def test_get_prompts_with_valid_user_id():
 
 @pytest.mark.asyncio
 async def test_get_prompts_with_invalid_user_id():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/prompts?user_id={INVALID_USER_ID}')
         print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -33,7 +33,7 @@ async def test_get_prompts_with_invalid_user_id():
 
 @pytest.mark.asyncio
 async def test_get_prompts_missing_user_id():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/prompts')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response

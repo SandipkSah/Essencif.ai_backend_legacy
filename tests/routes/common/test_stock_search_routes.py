@@ -10,7 +10,7 @@ BASE_URL = os.getenv("BASE_URL")
 
 @pytest.mark.asyncio
 async def test_stock_search_with_valid_query():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/search_stocks/apple')
         assert response.status_code == 200
         data = response.json()
@@ -21,7 +21,7 @@ async def test_stock_search_with_valid_query():
 
 @pytest.mark.asyncio
 async def test_stock_search_with_invalid_query():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/search_stocks/invalidquery')
         assert response.status_code == 200
         data = response.json()

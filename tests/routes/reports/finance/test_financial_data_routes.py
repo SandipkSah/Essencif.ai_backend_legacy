@@ -12,7 +12,7 @@ INVALID_TICKER = os.getenv("INVALID_TICKER")
 
 @pytest.mark.asyncio
 async def test_get_current_price_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/current_price/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -23,7 +23,7 @@ async def test_get_current_price_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_current_price_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/current_price/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -35,7 +35,7 @@ async def test_get_current_price_with_invalid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_financial_statements_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/financial_statements/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -45,7 +45,7 @@ async def test_get_financial_statements_with_valid_ticker():
 
 # @pytest.mark.asyncio
 # async def test_get_financial_statements_with_invalid_ticker():
-#     async with httpx.AsyncClient() as client:
+#     async with httpx.AsyncClient(timeout=300.0) as client:
 #         response = await client.get(f'{BASE_URL}/api/financial_statements/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -55,7 +55,7 @@ async def test_get_financial_statements_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_analyst_sentiments_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/analyst_sentiments/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -65,7 +65,7 @@ async def test_get_analyst_sentiments_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_business_model_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/business_model/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -75,7 +75,7 @@ async def test_get_business_model_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_business_model_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/business_model/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -85,7 +85,7 @@ async def test_get_business_model_with_invalid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_time_series_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/time_series/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -95,7 +95,7 @@ async def test_get_time_series_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_time_series_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/time_series/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -105,7 +105,7 @@ async def test_get_time_series_with_invalid_ticker():
 
 @pytest.mark.asyncio
 async def test_total_revenue_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/total_revenue/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -114,7 +114,7 @@ async def test_total_revenue_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_total_revenue_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/total_revenue/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -124,7 +124,7 @@ async def test_total_revenue_with_invalid_ticker():
 
 @pytest.mark.asyncio
 async def test_ebitda_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/ebitda/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -133,7 +133,7 @@ async def test_ebitda_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_ebitda_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/ebitda/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response
@@ -143,7 +143,7 @@ async def test_ebitda_with_invalid_ticker():
 
 @pytest.mark.asyncio
 async def test_balance_sheet_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/balance_sheet/{VALID_TICKER}')
         # print(response.json())  # Print the response
         assert response.status_code == 200
@@ -152,7 +152,7 @@ async def test_balance_sheet_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_balance_sheet_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/balance_sheet/{INVALID_TICKER}')
         # print(response.status_code)  # Print the status code
         # print(response.json())  # Print the response

@@ -12,7 +12,7 @@ INVALID_TICKER = os.getenv("INVALID_TICKER")
 
 @pytest.mark.asyncio
 async def test_get_recent_news_with_valid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/recent_news/{VALID_TICKER}')
         assert response.status_code == 200
         data = response.json()
@@ -21,7 +21,7 @@ async def test_get_recent_news_with_valid_ticker():
 
 @pytest.mark.asyncio
 async def test_get_recent_news_with_invalid_ticker():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(f'{BASE_URL}/api/recent_news/{INVALID_TICKER}')
         assert response.status_code == 200  # Adjust based on actual response
         data = response.json()

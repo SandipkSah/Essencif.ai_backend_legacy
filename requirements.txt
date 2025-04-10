@@ -20,7 +20,7 @@ MarkupSafe==2.1.5
 multitasking==0.0.11
 openai==1.54.0
 packaging==24.1
-pandas==2.2.2
+pandas==2.2.3
 peewee==3.17.6
 platformdirs==4.2.2
 pydantic==2.8.2
@@ -50,8 +50,8 @@ langchain==0.3.7
 langchain_huggingface==0.1.2
 langchain_openai==0.2.8
 langchain-community==0.3.7
-tortoise-orm==0.22.0
-tortoise-orm[asyncodbc]==0.22.0
+tortoise-orm==0.24.2
+tortoise-orm[asyncodbc]==0.24.2
 uvicorn==0.30.5
 quart==0.19.9
 quart-cors==0.7.0
